@@ -16,9 +16,6 @@
  */
 package org.tomitribe.auth.signatures;
 
-import java.security.Provider;
-import java.util.Objects;
-
 public enum Algorithm {
 
     HMACSHA1("HmacSHA1", "hmac-sha1"),
