@@ -43,7 +43,7 @@ public class Signer {
 
     private final Key key;
     private final Signature signature;
-    private final String algorithm;
+    private final Algorithm algorithm;
     private final Provider provider;
 
     public Signer(final Key key, final Signature signature) {
@@ -53,7 +53,7 @@ public class Signer {
     public Signer(final Key key, final Signature signature, final Provider provider) {
         this.key = requireNonNull(key, "Key cannot be null");
         this.signature = requireNonNull(signature, "Signature cannot be null");
-        this.algorithm = Algorithms.resolveAlgorithm(signature.getAlgorithm(), provider);
+        this.algorithm = Algorithm.get(signature.getAlgorithm());
         this.provider = provider;
 
         // check that the JVM really knows the algorithm we are going to use
@@ -115,7 +115,7 @@ public class Signer {
 
 
     private byte[] hash(final byte[] bytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        final Mac mac = provider == null ? Mac.getInstance(algorithm) : Mac.getInstance(algorithm, provider);
+        final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
         mac.init(this.key);
         return mac.doFinal(bytes);
     }
