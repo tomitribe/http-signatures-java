@@ -19,56 +19,83 @@ package org.tomitribe.auth.signatures;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA224;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA224;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA512;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA512;
 
 public class AlgorithmTest extends Assert {
 
-    private static final String[] hmac = {"Hmac", "HMAC", "hmac", "hMaC"};
-    private static final String[] delimiters = {"", " ", "-"};
-    private static final String[] sha = {"sha", "SHA", "sha", "SHA", "sHa"};
+    @Test
+    public void portableName() throws Exception {
+        assertEquals("hmac-sha1", HMAC_SHA1.getPortableName());
+        assertEquals("hmac-sha224", HMAC_SHA224.getPortableName());
+        assertEquals("hmac-sha256", HMAC_SHA256.getPortableName());
+        assertEquals("hmac-sha384", HMAC_SHA384.getPortableName());
+        assertEquals("hmac-sha512", HMAC_SHA512.getPortableName());
+        assertEquals("rsa-sha1", RSA_SHA1.getPortableName());
+        assertEquals("rsa-sha256", RSA_SHA256.getPortableName());
+        assertEquals("rsa-sha384", RSA_SHA384.getPortableName());
+        assertEquals("rsa-sha512", RSA_SHA512.getPortableName());
+        assertEquals("dsa-sha1", DSA_SHA1.getPortableName());
+        assertEquals("dsa-sha224", DSA_SHA224.getPortableName());
+        assertEquals("dsa-sha256", DSA_SHA256.getPortableName());
+    }
 
     @Test
-    public void testToPortableName() throws Exception {
-
-        assertPortableName("hmac-sha1", hmac, delimiters, sha, "1");
-        assertPortableName("hmac-sha256", hmac, delimiters, sha, "256");
-        assertPortableName("hmac-sha512", hmac, delimiters, sha, "512");
+    public void jvmNames() {
+        assertEquals("HmacSHA1", HMAC_SHA1.getJmvName());
+        assertEquals("HmacSHA224", HMAC_SHA224.getJmvName());
+        assertEquals("HmacSHA256", HMAC_SHA256.getJmvName());
+        assertEquals("HmacSHA384", HMAC_SHA384.getJmvName());
+        assertEquals("HmacSHA512", HMAC_SHA512.getJmvName());
+        assertEquals("SHA1withRSA", RSA_SHA1.getJmvName());
+        assertEquals("SHA256withRSA", RSA_SHA256.getJmvName());
+        assertEquals("SHA384withRSA", RSA_SHA384.getJmvName());
+        assertEquals("SHA512withRSA", RSA_SHA512.getJmvName());
+        assertEquals("SHA1withDSA", DSA_SHA1.getJmvName());
+        assertEquals("SHA224withDSA", DSA_SHA224.getJmvName());
+        assertEquals("SHA256withDSA", DSA_SHA256.getJmvName());
     }
 
     @Test
-    public void testToJvmName() throws Exception {
-
-        assertJvmName("HmacSHA1", hmac, delimiters, sha, "1");
-        assertJvmName("HmacSHA256", hmac, delimiters, sha, "256");
-        assertJvmName("HmacSHA512", hmac, delimiters, sha, "512");
-    }
-
-    private void assertPortableName(final String expected, final String[] type, final String[] delimiters, final String[] sha, final String bits) {
-        for (String text : matrix(type, delimiters, sha, new String[]{bits})) {
-            assertEquals(expected, Algorithm.toPortableName(text));
+    public void getWithPortableName() throws Exception {
+        for (final Algorithm algorithm : Algorithm.values()) {
+            assertEquals(algorithm, Algorithm.get(algorithm.getPortableName()));
         }
     }
 
-    private void assertJvmName(final String expected, final String[] type, final String[] delimiters, final String[] sha, final String bits) {
-        for (String text : matrix(type, delimiters, sha, new String[]{bits})) {
-            assertEquals(expected, Algorithm.toJvmName(text));
+    @Test
+    public void getWithJvmName() throws Exception {
+        for (final Algorithm algorithm : Algorithm.values()) {
+            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName()));
         }
     }
 
-    private Iterable<String> matrix(String[] hmac, String[] delimiters, String[] sha, String[] one) {
-        // this could be fancier and create the strings as we iterate,
-        // but this is good enough
-        final List<String> list = new ArrayList<String>();
-        for (String h : hmac) {
-            for (String d : delimiters) {
-                for (String s : sha) {
-                    for (String o : one) {
-                        list.add(h + d + s + o);
-                    }
-                }
-            }
+    @Test
+    public void getNotCaseSensitive() throws Exception {
+        for (final Algorithm algorithm : Algorithm.values()) {
+            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().toLowerCase()));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().toUpperCase()));
+
+            assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().toLowerCase()));
+            assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().toUpperCase()));
         }
-        return list;
+    }
+
+    @Test
+    public void nonAlphaNumericsIgnored() throws Exception {
+        for (final Algorithm algorithm : Algorithm.values()) {
+            assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().replace("-", " :-./ ")));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().replace("with", " -/with:.")));
+        }
     }
 }
