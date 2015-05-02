@@ -98,4 +98,9 @@ public class AlgorithmTest extends Assert {
             assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().replace("with", " -/with:.")));
         }
     }
+
+    @Test(expected = UnsupportedAlgorithmException.class)
+    public void unsupportedAlgorithmException() throws Exception {
+        Algorithm.get("HmacMD256");
+    }
 }
