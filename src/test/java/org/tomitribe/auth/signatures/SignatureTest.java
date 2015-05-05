@@ -46,7 +46,7 @@ public class SignatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullAlgorithm() {
-        new Signature("somekey", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        new Signature("somekey", (String) null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class SignatureTest {
         final Signature signature = Signature.fromString(authorization);
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signature.getSignature());
         assertEquals("(request-target)\n" +
                 "host\n" +
@@ -95,7 +95,7 @@ public class SignatureTest {
         final Signature signature = Signature.fromString(authorization);
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
         assertEquals("date", join("\n", signature.getHeaders()));
     }
@@ -112,7 +112,7 @@ public class SignatureTest {
         final Signature signature = Signature.fromString(authorization);
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
         assertEquals("one\n" +
                 "two\n" +
@@ -130,7 +130,7 @@ public class SignatureTest {
         final Signature signature = Signature.fromString(authorization);
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
         assertEquals("date", join("\n", signature.getHeaders()));
     }
@@ -147,7 +147,7 @@ public class SignatureTest {
         final Signature signature = Signature.fromString(authorization);
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
         assertEquals("date", join("\n", signature.getHeaders()));
     }
@@ -187,7 +187,7 @@ public class SignatureTest {
         final Signature signature = new Signature("hmac-key-1", "hMaC-ShA256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "dAte", "aCcEpt");
 
         assertEquals("hmac-key-1", signature.getKeyId());
-        assertEquals("hmac-sha256", signature.getAlgorithm());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signature.getSignature());
         assertEquals("date\naccept", join("\n", signature.getHeaders()));
     }
@@ -203,7 +203,7 @@ public class SignatureTest {
     @Test
     public void ambiguousParameters() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "ecdsa-sha256", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
+        final Signature expected = new Signature("hmac-key-3", "dsa-sha1", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -211,7 +211,7 @@ public class SignatureTest {
                 "keyId=\"hmac-key-3\"",
                 "algorithm=\"hmac-sha256\"",
                 "headers=\"date accept content-length\"",
-                "algorithm=\"ecdsa-sha256\"",
+                "algorithm=\"dsa-sha1\"",
                 "headers=\"date\"",
                 "signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"",
                 "signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\""
@@ -225,7 +225,7 @@ public class SignatureTest {
     @Test
     public void parameterCaseTolerance() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "ecdsa-sha256", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
+        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -233,7 +233,7 @@ public class SignatureTest {
                 "KeyId=\"hmac-key-3\"",
                 "algorithm=\"hmac-sha256\"",
                 "headers=\"date accept content-length\"",
-                "aLgorithm=\"ecdsa-sha256\"",
+                "aLgorithm=\"rsa-sha256\"",
                 "headers=\"date\"",
                 "signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"",
                 "SIGNATURE=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\""
@@ -247,14 +247,14 @@ public class SignatureTest {
     @Test
     public void unknownParameters() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "ecdsa-sha256", "PIft5ByT/Nr5RWvB+QLQRyFAvbGmauCOE7FTL0tI+Jg=", "date");
+        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", "PIft5ByT/Nr5RWvB+QLQRyFAvbGmauCOE7FTL0tI+Jg=", "date");
 
         final List<String> input = Arrays.asList(
                 "scopeId=\"hmac-key-1\"",
                 "keyId=\"hmac-key-2\"",
                 "keyId=\"hmac-key-3\"",
                 "precision=\"hmac-sha256\"",
-                "algorithm=\"ecdsa-sha256\"",
+                "algorithm=\"rsa-sha256\"",
                 "topics=\"date accept content-length\"",
                 "headers=\"date\"",
                 "signature=\"PIft5ByT/Nr5RWvB+QLQRyFAvbGmauCOE7FTL0tI+Jg=\"",

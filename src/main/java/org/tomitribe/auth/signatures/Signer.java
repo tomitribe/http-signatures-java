@@ -22,9 +22,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.security.SignatureException;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -53,64 +51,47 @@ public class Signer {
     public Signer(final Key key, final Signature signature, final Provider provider) {
         this.key = requireNonNull(key, "Key cannot be null");
         this.signature = requireNonNull(signature, "Signature cannot be null");
-        this.algorithm = Algorithm.get(signature.getAlgorithm());
+        this.algorithm = signature.getAlgorithm();
         this.provider = provider;
 
         // check that the JVM really knows the algorithm we are going to use
         try {
-            hash("validation".getBytes());
-
+            sign("validation".getBytes());
         } catch (final Exception e) {
             throw new UnsupportedAlgorithmException("Can't initialise the Signer using the provided algorithm", e);
         }
     }
 
-    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         final String signingString = createSigningString(method, uri, headers);
         final String signedAndEncodedString = sign(signingString);
 
         return new Signature(signature.getKeyId(), signature.getAlgorithm(), signedAndEncodedString, signature.getHeaders());
     }
 
-    String sign(final String signingString) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-        final byte[] hashed = hash(signingString.getBytes("UTF-8"));
-        final byte[] encoded = Base64.encodeBase64(hashed);
-
+    String sign(final String signingString) throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+        final byte[] signature = sign(signingString.getBytes("UTF-8"));
+        final byte[] encoded = Base64.encodeBase64(signature);
         return new String(encoded, "UTF-8");
     }
 
-    String createSigningString(String method, final String uri, Map<String, String> headers) throws IOException {
-        method = lowercase(method);
-        headers = lowercase(headers);
+    private byte[] sign(byte[] bytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 
-        final List<String> list = new ArrayList<String>(signature.getHeaders().size());
-
-        for (final String key : signature.getHeaders()) {
-            if ("(request-target)".equals(key)) {
-                list.add(Join.join(" ", "(request-target):", method, uri));
-
-            } else {
-                final String value = headers.get(key);
-                if (value == null) throw new MissingRequiredHeaderException(key);
-
-                list.add(key + ": " + value);
-            }
+        if (java.security.Signature.class.equals(algorithm.getType())) {
+            final java.security.Signature instance = java.security.Signature.getInstance(algorithm.getPortableName(), provider);
+            instance.update(bytes);
+            return instance.sign();
         }
 
-        return Join.join("\n", list);
-    }
-
-    private static Map<String, String> lowercase(final Map<String, String> headers) {
-        final Map<String, String> map = new HashMap<String, String>();
-        for (final Map.Entry<String, String> entry : headers.entrySet()) {
-            map.put(entry.getKey().toLowerCase(), entry.getValue());
+        if (Mac.class.equals(algorithm.getType())) {
+            return hash(bytes);
         }
 
-        return map;
+        throw new IllegalStateException("Unknown Algorithm type " + algorithm.getType().getName());
     }
 
-    private static String lowercase(final String spec) {
-        return spec.toLowerCase();
+    String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
+        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers);
     }
 
 

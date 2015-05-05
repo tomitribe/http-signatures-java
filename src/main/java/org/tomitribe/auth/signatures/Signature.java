@@ -41,7 +41,7 @@ public class Signature {
      * registry located at http://www.iana.org/assignments/signature-
      * algorithms and MUST NOT be marked "deprecated".
      */
-    private final String algorithm;
+    private final Algorithm algorithm;
 
     /**
      * OPTIONAL.  The `headers` parameter is used to specify the list of
@@ -68,19 +68,32 @@ public class Signature {
     private final List<String> headers;
 
     public Signature(final String keyId, final String algorithm, final String signature, final String... headers) {
+        this(keyId, getAlgorithm(algorithm), signature, headers);
+    }
+
+    private static Algorithm getAlgorithm(String algorithm) {
+        if (algorithm == null) throw new IllegalArgumentException("Algorithm cannot be null");
+        return Algorithm.get(algorithm);
+    }
+
+    public Signature(final String keyId, final Algorithm algorithm, final String signature, final String... headers) {
         this(keyId, algorithm, signature, Arrays.asList(headers));
     }
 
     public Signature(final String keyId, final String algorithm, final String signature, final List<String> headers) {
+        this(keyId, getAlgorithm(algorithm), signature, headers);
+    }
+
+    public Signature(final String keyId, Algorithm algorithm, final String signature, final List<String> headers) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
-        if (algorithm == null || algorithm.trim().isEmpty()) {
+        if (algorithm == null) {
             throw new IllegalArgumentException("algorithm is required.");
         }
 
         this.keyId = keyId;
-        this.algorithm = algorithm.toLowerCase();
+        this.algorithm = algorithm;
 
         // this is the only one that can be null cause the object
         // can be used as a template/specification
@@ -106,7 +119,7 @@ public class Signature {
         return keyId;
     }
 
-    public String getAlgorithm() {
+    public Algorithm getAlgorithm() {
         return algorithm;
     }
 
@@ -151,7 +164,9 @@ public class Signature {
             final String signature = map.get("signature");
             if (signature == null) throw new MissingSignatureException();
 
-            return new Signature(keyid, algorithm, signature, headers);
+            final Algorithm parsedAlgorithm = Algorithm.get(algorithm);
+
+            return new Signature(keyid, parsedAlgorithm, signature, headers);
 
         } catch (AuthenticationException e) {
             throw e;
