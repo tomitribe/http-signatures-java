@@ -18,12 +18,10 @@ package org.tomitribe.auth.signatures;
 
 import javax.crypto.Mac;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
-import java.security.SignatureException;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -83,7 +81,7 @@ public class Signer {
         }
     }
 
-    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
 
         final String signingString = createSigningString(method, uri, headers);
 

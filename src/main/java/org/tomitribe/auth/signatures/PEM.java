@@ -149,6 +149,7 @@ public enum PEM {
             try {
                 reader.close();
             } catch (IOException ignore) {
+                //ignore
             }
         }
     }
@@ -204,8 +205,9 @@ public enum PEM {
 
         public static PEMObjectType fromBeginMarker(final String beginMarker) {
             for (PEMObjectType e : PEMObjectType.values()) {
-                if (e.getBeginMarker().equals(beginMarker))
+                if (e.getBeginMarker().equals(beginMarker)){
                     return e;
+                }
             }
             return null;
         }
