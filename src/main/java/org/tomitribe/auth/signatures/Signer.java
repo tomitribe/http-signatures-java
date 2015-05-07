@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.SignatureException;
 import java.util.Map;
@@ -39,7 +40,8 @@ import static java.util.Objects.requireNonNull;
  */
 public class Signer {
 
-    private final Key key;
+    private final Key symmetricKey;
+    private final PrivateKey asymmetricKey;
     private final Signature signature;
     private final Algorithm algorithm;
     private final Provider provider;
@@ -49,10 +51,19 @@ public class Signer {
     }
 
     public Signer(final Key key, final Signature signature, final Provider provider) {
-        this.key = requireNonNull(key, "Key cannot be null");
         this.signature = requireNonNull(signature, "Signature cannot be null");
         this.algorithm = signature.getAlgorithm();
         this.provider = provider;
+
+        if (java.security.Signature.class.equals(algorithm.getType())) {
+            this.asymmetricKey = PrivateKey.class.cast(key);
+            this.symmetricKey = null;
+        } else if (Mac.class.equals(algorithm.getType())) {
+            this.asymmetricKey = null;
+            this.symmetricKey = key;
+        } else {
+            throw new UnsupportedAlgorithmException(String.format("Unknown Algorithm type %s %s", algorithm.getPortableName(), algorithm.getType().getName()));
+        }
 
         // check that the JVM really knows the algorithm we are going to use
         try {
@@ -75,16 +86,17 @@ public class Signer {
         return new String(encoded, "UTF-8");
     }
 
-    private byte[] sign(byte[] bytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    private byte[] sign(byte[] signingStringBytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 
         if (java.security.Signature.class.equals(algorithm.getType())) {
-            final java.security.Signature instance = java.security.Signature.getInstance(algorithm.getPortableName(), provider);
-            instance.update(bytes);
+            final java.security.Signature instance = provider == null ? java.security.Signature.getInstance(algorithm.getJmvName()) : java.security.Signature.getInstance(algorithm.getJmvName(), provider);
+            instance.initSign(asymmetricKey);
+            instance.update(signingStringBytes);
             return instance.sign();
         }
 
         if (Mac.class.equals(algorithm.getType())) {
-            return hash(bytes);
+            return hash(signingStringBytes);
         }
 
         throw new IllegalStateException("Unknown Algorithm type " + algorithm.getType().getName());
@@ -94,12 +106,9 @@ public class Signer {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers);
     }
 
-
     private byte[] hash(final byte[] bytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
-        mac.init(this.key);
+        mac.init(this.symmetricKey);
         return mac.doFinal(bytes);
     }
-
-
 }

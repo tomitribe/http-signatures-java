@@ -17,7 +17,6 @@
 package org.tomitribe.auth.signatures;
 
 import javax.crypto.Mac;
-import java.security.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +38,7 @@ public enum Algorithm {
     // dsa
     DSA_SHA1("SHA1withDSA", "dsa-sha1", java.security.Signature.class),
     DSA_SHA224("SHA224withDSA", "dsa-sha224", java.security.Signature.class),
-    DSA_SHA256("SHA256withDSA", "dsa-sha256", java.security.Signature.class),
-    ;
+    DSA_SHA256("SHA256withDSA", "dsa-sha256", java.security.Signature.class),;
 
     private static final Map<String, Algorithm> aliases = new HashMap<String, Algorithm>();
 
