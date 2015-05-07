@@ -18,7 +18,6 @@ package org.tomitribe.auth.signatures;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.tomitribe.auth.signatures.pem.PEM;
 
 import java.io.ByteArrayInputStream;
 import java.security.PrivateKey;

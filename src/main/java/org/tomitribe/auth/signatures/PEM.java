@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.auth.signatures.pem;
+package org.tomitribe.auth.signatures;
 
 
 import java.io.BufferedReader;
