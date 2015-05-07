@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Signatures {
+public enum Signatures {
+    ;
 
     public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) throws IOException {
         method = lowercase(method);

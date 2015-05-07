@@ -16,8 +16,6 @@
  */
 package org.tomitribe.auth.signatures;
 
-import java.io.IOException;
-
 /**
  * Provides Base64 encoding and decoding as defined by RFC 2045.
  *
@@ -27,7 +25,8 @@ import java.io.IOException;
  *
  * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
  */
-public class Base64 {
+public enum Base64 {
+    ;
 
     /**
      * Chunk size per RFC 2045 section 6.8.
@@ -164,32 +163,6 @@ public class Base64 {
     }
 
     /**
-     * Tests a given byte array to see if it contains
-     * only valid characters within the Base64 alphabet.
-     *
-     * @param arrayOctect byte array to test
-     * @return <code>true</code> if all bytes are valid characters in the Base64
-     *         alphabet or if the byte array is empty; false, otherwise
-     */
-    public static boolean isArrayByteBase64(byte[] arrayOctect) {
-
-        arrayOctect = discardWhitespace(arrayOctect);
-
-        int length = arrayOctect.length;
-        if (length == 0) {
-            // shouldn't a 0 length array be valid base64 data?
-            // return false;
-            return true;
-        }
-        for (int i = 0; i < length; i++) {
-            if (!isBase64(arrayOctect[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Encodes binary data using the base64 algorithm but
      * does not chunk the output.
      *
@@ -200,47 +173,6 @@ public class Base64 {
         return encodeBase64(binaryData, false);
     }
 
-    /**
-     * Encodes binary data using the base64 algorithm and chunks
-     * the encoded output into 76 character blocks
-     *
-     * @param binaryData binary data to encode
-     * @return Base64 characters chunked in 76 character blocks
-     */
-    public static byte[] encodeBase64Chunked(byte[] binaryData) {
-        return encodeBase64(binaryData, true);
-    }
-
-
-    /**
-     * Decodes an Object using the base64 algorithm.  This method
-     * is provided in order to satisfy the requirements of the
-     * Decoder interface, and will throw a DecoderException if the
-     * supplied object is not of type byte[].
-     *
-     * @param pObject Object to decode
-     * @return An object (of type byte[]) containing the
-     *         binary data which corresponds to the byte[] supplied.
-     * @throws java.io.IOException if the parameter supplied is not
-     *                          of type byte[]
-     */
-    public Object decode(Object pObject) throws IOException {
-        if (!(pObject instanceof byte[])) {
-            throw new IOException("Parameter supplied to Base64 decode is not a byte[]");
-        }
-        return decode((byte[]) pObject);
-    }
-
-    /**
-     * Decodes a byte[] containing containing
-     * characters in the Base64 alphabet.
-     *
-     * @param pArray A byte array containing Base64 character data
-     * @return a byte array containing binary data
-     */
-    public byte[] decode(byte[] pArray) {
-        return decodeBase64(pArray);
-    }
 
     /**
      * Encodes binary data using the base64 algorithm, optionally
@@ -273,7 +205,7 @@ public class Base64 {
         if (isChunked) {
 
             nbrChunks =
-                (CHUNK_SEPARATOR.length == 0 ? 0 : (int) Math.ceil((float) encodedDataLength / CHUNK_SIZE));
+                    (CHUNK_SEPARATOR.length == 0 ? 0 : (int) Math.ceil((float) encodedDataLength / CHUNK_SIZE));
             encodedDataLength += nbrChunks * CHUNK_SEPARATOR.length;
         }
 
@@ -282,7 +214,7 @@ public class Base64 {
         byte k = 0;
         byte l = 0;
         byte b1 = 0;
-        byte  b2 = 0;
+        byte b2 = 0;
         byte b3 = 0;
 
         int encodedIndex = 0;
@@ -304,20 +236,20 @@ public class Base64 {
             k = (byte) (b1 & 0x03);
 
             byte val1 =
-                ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
+                    ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
             byte val2 =
-                ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
+                    ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
             byte val3 =
-                ((b3 & SIGN) == 0) ? (byte) (b3 >> 6) : (byte) ((b3) >> 6 ^ 0xfc);
+                    ((b3 & SIGN) == 0) ? (byte) (b3 >> 6) : (byte) ((b3) >> 6 ^ 0xfc);
 
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
             //log.debug( "val2 = " + val2 );
             //log.debug( "k4   = " + (k<<4) );
             //log.debug(  "vak  = " + (val2 | (k<<4)) );
             encodedData[encodedIndex + 1] =
-                lookUpBase64Alphabet[val2 | (k << 4)];
+                    lookUpBase64Alphabet[val2 | (k << 4)];
             encodedData[encodedIndex + 2] =
-                lookUpBase64Alphabet[(l << 2) | val3];
+                    lookUpBase64Alphabet[(l << 2) | val3];
             encodedData[encodedIndex + 3] = lookUpBase64Alphabet[b3 & 0x3f];
 
             encodedIndex += 4;
@@ -327,15 +259,15 @@ public class Base64 {
                 // this assumes that CHUNK_SIZE % 4 == 0
                 if (encodedIndex == nextSeparatorIndex) {
                     System.arraycopy(
-                        CHUNK_SEPARATOR,
-                        0,
-                        encodedData,
-                        encodedIndex,
-                        CHUNK_SEPARATOR.length);
+                            CHUNK_SEPARATOR,
+                            0,
+                            encodedData,
+                            encodedIndex,
+                            CHUNK_SEPARATOR.length);
                     chunksSoFar++;
                     nextSeparatorIndex =
-                        (CHUNK_SIZE * (chunksSoFar + 1)) +
-                        (chunksSoFar * CHUNK_SEPARATOR.length);
+                            (CHUNK_SIZE * (chunksSoFar + 1)) +
+                                    (chunksSoFar * CHUNK_SEPARATOR.length);
                     encodedIndex += CHUNK_SEPARATOR.length;
                 }
             }
@@ -350,7 +282,7 @@ public class Base64 {
             //log.debug("b1=" + b1);
             //log.debug("b1<<2 = " + (b1>>2) );
             byte val1 =
-                ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
+                    ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
             encodedData[encodedIndex + 1] = lookUpBase64Alphabet[k << 4];
             encodedData[encodedIndex + 2] = PAD;
@@ -363,13 +295,13 @@ public class Base64 {
             k = (byte) (b1 & 0x03);
 
             byte val1 =
-                ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
+                    ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
             byte val2 =
-                ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
+                    ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
 
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
             encodedData[encodedIndex + 1] =
-                lookUpBase64Alphabet[val2 | (k << 4)];
+                    lookUpBase64Alphabet[val2 | (k << 4)];
             encodedData[encodedIndex + 2] = lookUpBase64Alphabet[l << 2];
             encodedData[encodedIndex + 3] = PAD;
         }
@@ -378,11 +310,11 @@ public class Base64 {
             // we also add a separator to the end of the final chunk.
             if (chunksSoFar < nbrChunks) {
                 System.arraycopy(
-                    CHUNK_SEPARATOR,
-                    0,
-                    encodedData,
-                    encodedDataLength - CHUNK_SEPARATOR.length,
-                    CHUNK_SEPARATOR.length);
+                        CHUNK_SEPARATOR,
+                        0,
+                        encodedData,
+                        encodedDataLength - CHUNK_SEPARATOR.length,
+                        CHUNK_SEPARATOR.length);
             }
         }
 
@@ -444,7 +376,7 @@ public class Base64 {
 
                 decodedData[encodedIndex] = (byte) (b1 << 2 | b2 >> 4);
                 decodedData[encodedIndex + 1] =
-                    (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
+                        (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
                 decodedData[encodedIndex + 2] = (byte) (b3 << 6 | b4);
             } else if (marker0 == PAD) {
                 //Two PAD e.g. 3c[Pad][Pad]
@@ -455,41 +387,11 @@ public class Base64 {
 
                 decodedData[encodedIndex] = (byte) (b1 << 2 | b2 >> 4);
                 decodedData[encodedIndex + 1] =
-                    (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
+                        (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
             }
             encodedIndex += 3;
         }
         return decodedData;
-    }
-
-    /**
-     * Discards any whitespace from a base-64 encoded block.
-     *
-     * @param data The base-64 encoded data to discard the whitespace
-     * from.
-     * @return The data, less whitespace (see RFC 2045).
-     */
-    static byte[] discardWhitespace(byte[] data) {
-        byte groomedData[] = new byte[data.length];
-        int bytesCopied = 0;
-
-        for (int i = 0; i < data.length; i++) {
-            switch (data[i]) {
-            case (byte) ' ' :
-            case (byte) '\n' :
-            case (byte) '\r' :
-            case (byte) '\t' :
-                    break;
-            default:
-                    groomedData[bytesCopied++] = data[i];
-            }
-        }
-
-        byte packedData[] = new byte[bytesCopied];
-
-        System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
-
-        return packedData;
     }
 
     /**
@@ -517,39 +419,4 @@ public class Base64 {
 
         return packedData;
     }
-
-
-    // Implementation of the Encoder Interface
-
-    /**
-     * Encodes an Object using the base64 algorithm.  This method
-     * is provided in order to satisfy the requirements of the
-     * Encoder interface, and will throw an EncoderException if the
-     * supplied object is not of type byte[].
-     *
-     * @param pObject Object to encode
-     * @return An object (of type byte[]) containing the
-     *         base64 encoded data which corresponds to the byte[] supplied.
-     * @throws java.io.IOException if the parameter supplied is not
-     *                          of type byte[]
-     */
-    public Object encode(Object pObject) throws IOException {
-        if (!(pObject instanceof byte[])) {
-            throw new IOException(
-                "Parameter supplied to Base64 encode is not a byte[]");
-        }
-        return encode((byte[]) pObject);
-    }
-
-    /**
-     * Encodes a byte[] containing binary data, into a byte[] containing
-     * characters in the Base64 alphabet.
-     *
-     * @param pArray a byte array containing binary data
-     * @return A byte array containing only Base64 character data
-     */
-    public byte[] encode(byte[] pArray) {
-        return encodeBase64(pArray, false);
-    }
-
 }

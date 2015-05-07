@@ -18,11 +18,8 @@ package org.tomitribe.auth.signatures;
 
 import java.util.Collection;
 
-public class Join {
-
-    private Join() {
-        // no-op
-    }
+public enum Join {
+    ;
 
     public static String join(final String delimiter, final Collection collection) {
         if (collection.size() == 0) return "";

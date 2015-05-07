@@ -51,6 +51,7 @@ public class Signer {
     }
 
     public Signer(final Key key, final Signature signature, final Provider provider) {
+        requireNonNull(key, "Key cannot be null");
         this.signature = requireNonNull(signature, "Signature cannot be null");
         this.algorithm = signature.getAlgorithm();
         this.provider = provider;
