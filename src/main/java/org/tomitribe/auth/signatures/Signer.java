@@ -40,8 +40,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class Signer {
 
-    private final Key symmetricKey;
-    private final PrivateKey asymmetricKey;
+    private final Sign sign;
     private final Signature signature;
     private final Algorithm algorithm;
     private final Provider provider;
@@ -57,59 +56,111 @@ public class Signer {
         this.provider = provider;
 
         if (java.security.Signature.class.equals(algorithm.getType())) {
-            this.asymmetricKey = PrivateKey.class.cast(key);
-            this.symmetricKey = null;
+
+            this.sign = new Asymmetric(PrivateKey.class.cast(key));
+
         } else if (Mac.class.equals(algorithm.getType())) {
-            this.asymmetricKey = null;
-            this.symmetricKey = key;
+
+            this.sign = new Symmetric(key);
+
         } else {
+
             throw new UnsupportedAlgorithmException(String.format("Unknown Algorithm type %s %s", algorithm.getPortableName(), algorithm.getType().getName()));
         }
 
         // check that the JVM really knows the algorithm we are going to use
         try {
-            sign("validation".getBytes());
+
+            sign.sign("validation".getBytes());
+
+        } catch (final RuntimeException e) {
+
+            throw (RuntimeException) e;
+
         } catch (final Exception e) {
-            throw new UnsupportedAlgorithmException("Can't initialise the Signer using the provided algorithm", e);
+
+            throw new IllegalStateException("Can't initialise the Signer using the provided algorithm and key", e);
         }
     }
 
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+
         final String signingString = createSigningString(method, uri, headers);
-        final String signedAndEncodedString = sign(signingString);
+
+        final byte[] binarySignature = sign.sign(signingString.getBytes("UTF-8"));
+
+        final byte[] encoded = Base64.encodeBase64(binarySignature);
+
+        final String signedAndEncodedString = new String(encoded, "UTF-8");
 
         return new Signature(signature.getKeyId(), signature.getAlgorithm(), signedAndEncodedString, signature.getHeaders());
     }
 
-    String sign(final String signingString) throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-        final byte[] signature = sign(signingString.getBytes("UTF-8"));
-        final byte[] encoded = Base64.encodeBase64(signature);
-        return new String(encoded, "UTF-8");
-    }
-
-    private byte[] sign(byte[] signingStringBytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-
-        if (java.security.Signature.class.equals(algorithm.getType())) {
-            final java.security.Signature instance = provider == null ? java.security.Signature.getInstance(algorithm.getJmvName()) : java.security.Signature.getInstance(algorithm.getJmvName(), provider);
-            instance.initSign(asymmetricKey);
-            instance.update(signingStringBytes);
-            return instance.sign();
-        }
-
-        if (Mac.class.equals(algorithm.getType())) {
-            return hash(signingStringBytes);
-        }
-
-        throw new IllegalStateException("Unknown Algorithm type " + algorithm.getType().getName());
-    }
-
-    String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
+    public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers);
     }
 
-    private byte[] hash(final byte[] bytes) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
-        mac.init(this.symmetricKey);
-        return mac.doFinal(bytes);
+    private interface Sign {
+        byte[] sign(byte[] signingStringBytes);
+    }
+
+    private class Asymmetric implements Sign {
+
+        private final PrivateKey key;
+
+        private Asymmetric(final PrivateKey key) {
+            this.key = key;
+        }
+
+        @Override
+        public byte[] sign(final byte[] signingStringBytes) {
+            try {
+
+                final java.security.Signature instance = provider == null ?
+                        java.security.Signature.getInstance(algorithm.getJmvName()) :
+                        java.security.Signature.getInstance(algorithm.getJmvName(), provider);
+
+                instance.initSign(key);
+                instance.update(signingStringBytes);
+                return instance.sign();
+
+            } catch (NoSuchAlgorithmException e) {
+
+                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+
+            } catch (Exception e) {
+
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    private class Symmetric implements Sign {
+
+        private final Key key;
+
+        private Symmetric(final Key key) {
+            this.key = key;
+        }
+
+        @Override
+        public byte[] sign(final byte[] signingStringBytes) {
+
+            try {
+
+                final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
+                mac.init(key);
+                return mac.doFinal(signingStringBytes);
+
+            } catch (NoSuchAlgorithmException e) {
+
+                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+
+            } catch (Exception e) {
+
+                throw new IllegalStateException(e);
+
+            }
+        }
     }
 }
