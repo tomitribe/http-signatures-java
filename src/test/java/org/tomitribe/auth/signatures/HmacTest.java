@@ -20,7 +20,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,25 +96,13 @@ public class HmacTest extends Assert {
 
 
     private void assertSignature(final Algorithm algorithm, final String expected, final String keyString, final String... sign) throws Exception {
-        final Key key = new SecretKeySpec(keyString.getBytes(), algorithm.getJmvName());
-        final Signature signature = new Signature("hmac-key-1", algorithm, null, sign);
-        final Signer signer = new Signer(key, signature);
+
+        final Signer signer = new Signer(
+                new SecretKeySpec(keyString.getBytes(), algorithm.getJmvName()),
+                new Signature("foo-key-1", algorithm, null, sign)
+        );
+
         final Signature signed = signer.sign(method, uri, headers);
-//        System.out.printf("assertSignature(algorithm, \"%s\", \"%s\"%s);%n", signed.getSignature(), keyString, join(sign));
         assertEquals(expected, signed.getSignature());
     }
-
-    public static String join(final Object... collection) {
-        if (collection.length == 0) return "";
-
-        final StringBuilder sb = new StringBuilder();
-
-        final String delimiter = ", \"";
-        for (final Object obj : collection) {
-            sb.append(delimiter).append(obj).append("\"");
-        }
-
-        return sb.toString();
-    }
-
 }

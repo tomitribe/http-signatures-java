@@ -145,9 +145,11 @@ public class RsaTest extends Assert {
     }
 
     private void assertSignature(final Algorithm algorithm, final String expected, final String... sign) throws Exception {
-        final org.tomitribe.auth.signatures.Signature signature = new org.tomitribe.auth.signatures.Signature("hmac-key-1", algorithm, null, sign);
-        final Signer signer = new Signer(privateKey, signature);
-        final org.tomitribe.auth.signatures.Signature signed = signer.sign(method, uri, headers);
+
+        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, sign));
+
+        final Signature signed = signer.sign(method, uri, headers);
+
         assertEquals(expected, signed.getSignature());
     }
 
