@@ -29,12 +29,15 @@ import static java.util.Objects.requireNonNull;
 /**
  * It is an intentional part of the design that the same Signer instance
  * can be reused on several HTTP Messages in a multi-threaded fashion
- * <p/>
+ *
+ * <p>
  * The supplied Signature instance will be used as the basis for all
  * future signatures created from this Signer.
- * <p/>
- * Each call to 'sign' will emit a Signature with the same 'keyId',
+ *
+ * <p>
+ *  Each call to 'sign' will emit a Signature with the same 'keyId',
  * 'algorithm', 'headers' but a newly calculated 'signature'
+ *
  */
 public class Signer {
 
