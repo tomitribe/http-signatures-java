@@ -1,0 +1,245 @@
+= HTTP Signatures (Java Client)
+
+== What are HTTP Signatures
+
+HTTP signatures provide a mechanism by which a shared secret key can be used to digitally "sign" a HTTP message to both verify the
+identity of the sender and verify that the message has not been tampered with in-transit.
+
+This is done by creating a "Signing string" - this is a string with each key-value to be included in the signature on a separate line,
+which is, in turn, encoded with the required algorithm using the shared secret - usually hmac-sha256. Finally, the encoded bytes are
+Base 64 encoded and added to the Authorization header, along with the keyId, encoding algorithm, header names, and the signature itself.
+
+For example, the following "signing string":
+
+----
+	digest: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+	date: Tue, 07 Jun 2014 20:51:35 GMT
+	(request-target): get /foo/Bar
+----
+
+if encoded using the hmac-sha256 algorithm with the secret +don't tell', and then encoded with Base64 would yield the result:
+
+----
+	6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s=
+----
+
+This would then be applied to the Authorization header as below:
+
+----
+	Authorization: Signature keyId="myusername:mykey",algorithm="hmac-sha256",headers="digest 
+	date (request-target)",signature="6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s="
+----
+
+== Configuring Tribestream
+
+The steps below walk through through configuring HTTP Signatures with a vanilla Tribestream installation.
+
+=== Create a keystore
+
+The first step is to create a keystore. This can done through a few different means: 
+
+* Using the keytool command included with the JDK.
+* Using Tribestream's REST API: 
+* Using Tribestream's +tribe+ command:`./tribe keystore-create --keystore=../conf/keystore --pass=secret --storetype=jceks`
+
+=== Configure the signatures realm
+
+Once the keystore has been created, the signatures realm in +conf/server.xml+ needs to be configured to use it. See the realm configuration below. It is worth encrypting the keystore password. This can be done using the +tomee+ command in the bin/ directory. For example, if your keystore password is `secret`, the command to find the encrypted version of the password is:`./tomee.sh cipher -e secret` and the Signature realm can be configured with the keystore location and encrypted password as shown:
+
+----
+      <!-- Use the LockOutRealm to prevent attempts to guess user passwords
+           via a brute-force attack -->
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+
+        <Realm className="com.tomitribe.tribestream.security.signatures.SignatureJAASRealm"
+               appName="tribe-realm"
+               keystoreFile="${catalina.base}/conf/test.jks"
+               keystorePass="cipher:Static3DES:6eOfmCFVPOI="
+               userClassNames="org.apache.openejb.core.security.jaas.UserPrincipal"
+               roleClassNames="org.apache.openejb.core.security.jaas.GroupPrincipal"/>
+
+        <Realm className="org.apache.catalina.realm.JAASRealm"
+               appName="tribe-realm"
+               userClassNames="org.apache.openejb.core.security.jaas.UserPrincipal"
+               roleClassNames="org.apache.openejb.core.security.jaas.GroupPrincipal"/>
+
+      </Realm>
+----
+
+
+=== Add keys to the keystore
+
+The same approaches used for creating the keystore can be used to import keys. Note that the +importpass+ +keytool+ command is only available with JDK 1.8 and is known to be buggy, and therefore using the REST API or the +tribe+ command is recommended.
+
+* Using the REST API:
+
+* Using the +bin/tribe+ command: `./tribe importpass --keystore=../conf/keystore --pass=secret --storetype=jceks --encoded=myreallysecurepassword --algorithm=PBE --alias=key --validfor=365d`
+
+== Configuring your web application
+
+* context.xml
+
+The Signature authenticator valve needs to be added to the web application in order to be processed and used for authentication. That is done by adding the following to the META-INF/context.xml. Note the required headers to be included in the signature are specified in the `headers` attribute on +SignatureAuthenticator+.
+
+
+[source, xml, numbered]
+----
+	<Context PreemptiveAuthentication="true">
+	  <Valve className="com.tomitribe.tribestream.security.signatures.SignatureAuthenticator"
+	         algorithm="hmac-sha256" debug="true"
+	         headers="(request-target) date"
+	      />
+	</Context>
+----
+
+Optionally, you may wish to apply some validation to the date header to ensure the service is not being called with an incorrect date and pre-calculated signature (in a replay attack, for example). To do that, ensure the context has the +DateValidationValve+ included:
+
+----
+	<Context PreemptiveAuthentication="true">
+	  <Valve className="com.tomitribe.tribestream.security.date.DateValidationValve"/>
+	  <Valve className="com.tomitribe.tribestream.security.signatures.SignatureAuthenticator"
+	         algorithm="hmac-sha256" debug="true"
+	         headers="(request-target) date"
+	      />
+	</Context>
+----
+
+* web.xml
+
+Finally, the web application needs to be told to require Signature authentication and the roles the user should have. This is configured in +web.xml+.
+
+----
+	<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+	         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	         version="3.0">
+
+
+	  <security-constraint>
+	    <web-resource-collection>
+	      <web-resource-name>REST API Resources</web-resource-name>
+	      <url-pattern>/api/*</url-pattern>
+	    </web-resource-collection>
+	    <auth-constraint>
+	      <role-name>*</role-name>
+	    </auth-constraint>
+	    <user-data-constraint>
+	      <transport-guarantee>NONE</transport-guarantee>
+	    </user-data-constraint>
+	  </security-constraint>
+
+	  <login-config>
+	    <auth-method>SIGNATURE</auth-method>
+	  </login-config>
+	  <security-role>
+	    <role-name>*</role-name>
+	  </security-role>
+
+	</web-app>
+----
+
+The example above requires signature authentication for all requests to `/api/*` and allows any role ("*").
+
+== Using the library
+
+The intention of the +http-signatures-java+ library is to simplify the creation of HTTP Signatures client code. There are 3 approaches to using the library:
+
+. Directly to compute a signing string
+. Integrated with CXF WebClient (useful for calling JAX-RS resources)
+. Integrated with Apache HTTP Client
+
+=== Computing a signing string and signature directly
+
+There are 2 key classes in this library:
+
+* Signature - defines the headers that make up the signature - this must as a minimum include the headers that the server requires to be part of the signature
+* Signer - computes the signature value using the headers/values defined on the +Signature+ classes
+
+Here is a simple example:
+
+[source,java,numbered]
+----
+        final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)");	// <1>
+        final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");								// <2>
+        final Signer signer = new Signer(key, signature);													// <3>
+        final Map<String, String> headers = new HashMap<>();
+        return signer.sign(method, uri, headers);															// <4>
+----
+
+<1> Define a new Signature object - this needs the key alias (1st parameter), the signature algorithm (2nd parameter - usually "hmac-sha256") and a list of headers to included in the signature (4th - nth parameters).
+<2> Define a SecretKeySpec instance, this needs the shared secret passphrase, and the algorithm used to store it in the keystore (usually "HmacSHA256").
+<3> Initialize a new Signer object with the key and signature from <1> and <2> above
+<4> Compute the signature using the +Signer+ object, passing the type of method, the URI and the values of any headers. This method returns a +Signature+ object (same as <1>, but with the +signature+ attribute populated).
+
+The output of +Signature.toString()+ should be used for the +Authorization+ header for the request.
+
+=== With CXF WebClient
+
+
+
+
+=== With Apache HTTP Client
+
+TBD
+
+=== Scenarios
+
+The following sections demonstrate a few common scenarios using http-signatures-java.
+
+==== Simple (request-target)
+
+This is the simplest request. Only the request-target (URI) is used to build the signature.
+
+[source,java,numbered]
+----
+        final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)");	// <1>
+        final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+        final Map<String, String> headers = new HashMap<>();
+        return signer.sign(method, uri, headers);															// <2>
+----
+
+<1> Define the +Signature+ object using just the "(request-target)" (note the use of parenthesis) element.
+<2> Use the +Signer+ class with the method, URI, and an empty header map to create the signature.
+
+==== (request-target) date (with date validation)
+
+This is similar to the the previous example, but expands on it by adding the date header to the signature. The date should be created in the "EEE, dd MMM yyyy HH:mm:ss zzz" format, and the exact same date should be passed to the +Signer+ as is used on the +Date+ header.
+
+[source,java,numbered]
+----
+        final Date today = new Date(); // default window is 1 hour
+        final String stringToday = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).format(today);
+
+        final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)", "date");	// <1>
+        final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+        final Map<String, String> headers = new HashMap<>();
+		headers.put("Date", stringToday);																			// <2>
+        return signer.sign(method, uri, headers);				
+----
+
+<1> Define the +Signature+ object with the "(request-target)" and "date" headers
+<2> Include the date in the headers map
+
+==== Including message body digest
+
+----
+	final byte[] digest = MessageDigest.getInstance("SHA-256").digest(payload.getBytes());				// <1>
+	final String digestHeader = "SHA256=" + new String(Base64.encodeBase64(digest));
+
+
+	final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)", "digest");  // <2>
+	final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");
+	final Signer signer = new Signer(key, signature);
+	final Map<String, String> headers = new HashMap<>();
+	headers.put("digest", digestHeader);
+	return signer.sign(method, uri, headers);
+----
+
+<1> Define the +Signature+ object with the "(request-target)" and "digest" headers
+<2> Include the digest in the headers map
+
+== References
+
+Signing HTTP Messages (Internet Draft 4) https://www.ietf.org/id/draft-cavage-http-signatures-04.txt
+Instance Digests in HTTP http://tools.ietf.org/html/rfc3230
