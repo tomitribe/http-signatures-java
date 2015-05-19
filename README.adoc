@@ -34,13 +34,13 @@ This would then be applied to the Authorization header as below:
 
 The steps below walk through through configuring HTTP Signatures with a vanilla Tribestream installation.
 
-=== Create a keystore
+=== Create a keystore and add a key
 
-The first step is to create a keystore. This can done through a few different means: 
+The first step is to create a keystore. The easiest way to do this is using the `keytool` program that comes with JDK 1.8:
 
-* Using the keytool command included with the JDK.
-* Using Tribestream's REST API: 
-* Using Tribestream's +tribe+ command:`./tribe keystore-create --keystore=../conf/keystore --pass=secret --storetype=jceks`
+----
+    keytool -importpass -keystore my.keystore -storetype jceks -storepass secret -keysize 2048 -keyalg HmacSHA256 -alias support
+----
 
 === Configure the signatures realm
 
@@ -65,15 +65,6 @@ Once the keystore has been created, the signatures realm in +conf/server.xml+ ne
 
       </Realm>
 ----
-
-
-=== Add keys to the keystore
-
-The same approaches used for creating the keystore can be used to import keys. Note that the +importpass+ +keytool+ command is only available with JDK 1.8 and is known to be buggy, and therefore using the REST API or the +tribe+ command is recommended.
-
-* Using the REST API:
-
-* Using the +bin/tribe+ command: `./tribe importpass --keystore=../conf/keystore --pass=secret --storetype=jceks --encoded=myreallysecurepassword --algorithm=PBE --alias=key --validfor=365d`
 
 == Configuring your web application
 
@@ -141,13 +132,7 @@ The example above requires signature authentication for all requests to `/api/*`
 
 == Using the library
 
-The intention of the +http-signatures-java+ library is to simplify the creation of HTTP Signatures client code. There are 3 approaches to using the library:
-
-. Directly to compute a signing string
-. Integrated with CXF WebClient (useful for calling JAX-RS resources)
-. Integrated with Apache HTTP Client
-
-=== Computing a signing string and signature directly
+The intention of the +http-signatures-java+ library is to simplify the creation of HTTP Signatures client code.
 
 There are 2 key classes in this library:
 
@@ -171,15 +156,6 @@ Here is a simple example:
 <4> Compute the signature using the +Signer+ object, passing the type of method, the URI and the values of any headers. This method returns a +Signature+ object (same as <1>, but with the +signature+ attribute populated).
 
 The output of +Signature.toString()+ should be used for the +Authorization+ header for the request.
-
-=== With CXF WebClient
-
-
-
-
-=== With Apache HTTP Client
-
-TBD
 
 === Scenarios
 
