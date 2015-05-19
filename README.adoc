@@ -17,7 +17,7 @@ For example, the following "signing string":
 	(request-target): get /foo/Bar
 ----
 
-if encoded using the hmac-sha256 algorithm with the secret +don't tell', and then encoded with Base64 would yield the result:
+if encoded using the hmac-sha256 algorithm with the secret +don't tell+, and then encoded with Base64 would yield the result:
 
 ----
 	6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s=
