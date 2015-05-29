@@ -34,13 +34,14 @@ date (request-target)",signature="6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s="
 
 Add the following dependency to your Maven pom file.
 
-```
+[source,xml,numbered]
+----
 <dependency>
   <groupId>org.tomitribe</groupId>
   <artifactId>tomitribe-http-signatures</artifactId>
   <version>1.0</version>
 </dependency>
-```
+----
 
 == Library Overview
 
