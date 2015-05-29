@@ -53,6 +53,8 @@ There are 2 key classes in this library:
 
 The `Signer` instance is intended to be created once and reused to sign all the HTTP messages that require HTTP Signature Authentication. 
 
+It is immutable, fully thread-safe and optimized to check and verify the supplied Key on construction.
+
 The first steps to creating a Signer instance are as follows:
 
 [source,java,numbered]
