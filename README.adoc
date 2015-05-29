@@ -132,11 +132,11 @@ This is similar to the the previous example, but expands on it by adding the dat
 final Date today = new Date(); // default window is 1 hour
 final String stringToday = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).format(today);
 
-final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)", "date"); // <1>
+final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)", "date");  // <1>
 final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");
 final Signer signer = new Signer(key, signature);
 final Map<String, String> headers = new HashMap<>();
-s.put("Date", stringToday);																			// <2>
+s.put("Date", stringToday);	 // <2>
 return signer.sign(method, uri, headers);				
 ----
 
@@ -145,6 +145,7 @@ return signer.sign(method, uri, headers);
 
 === Message body digest
 
+[source,java,numbered]
 ----
 final byte[] digest = MessageDigest.getInstance("SHA-256").digest(payload.getBytes()); // <1>
 final String digestHeader = "SHA256=" + new String(Base64.encodeBase64(digest));
