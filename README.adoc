@@ -99,6 +99,7 @@ The returned `Signature` object represents a full HTTP Signature.  Simply call `
 
 Calling `toString()` on the above `Signature` instance will yeild the following:
 
+[listing]
 ----
 Signature keyId="my-key-name","algorithm="hmac-sha256",headers="content-length host date (request-target)",signature="yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg="
 ----
