@@ -1,4 +1,5 @@
 = HTTP Signatures Java Client
+:showtitle:
 
 HTTP signatures provide a mechanism by which a shared secret key can be used to digitally "sign" a HTTP message to both verify the
 identity of the sender and verify that the message has not been tampered with in-transit.
