@@ -172,3 +172,63 @@ return signer.sign(method, uri, headers);
 Signing HTTP Messages (Internet Draft 4) https://www.ietf.org/id/draft-cavage-http-signatures-04.txt
 
 Instance Digests in HTTP http://tools.ietf.org/html/rfc3230
+
+= Signing Examples
+
+== Java 8
+
+[source,java]
+----
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class SigningExample {
+
+    public static void main(String... s) throws Exception {
+
+        final String key = "don't tell";
+
+        final String signingString = "digest: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=\n" +
+                "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
+                "(request-target): get /foo/Bar";
+
+        final Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256"));
+        final byte[] signedBytes = mac.doFinal(signingString.getBytes("UTF-8"));
+        final Base64.Encoder encoder = Base64.getEncoder();
+
+        final String result = new String(encoder.encode(signedBytes), "UTF-8");
+
+        if (!"6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s=".equals(result)) {
+            throw new IllegalStateException("Signing failed");
+        }
+
+        System.out.println(result);
+    }
+}
+----
+
+== Bash
+
+[source,java]
+----
+#!/bin/bash
+
+# Secret Key
+KEY="don't tell"
+
+# Create the Signing string from the required headers
+STRING='digest: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+date: Tue, 07 Jun 2014 20:51:35 GMT
+(request-target): get /foo/Bar'
+
+# Sign the string, base64
+echo -n "$STRING" | openssl dgst -binary -sha256 -hmac "$KEY" | base64
+----
+
+Running this will print:
+
+----
+6aq7lLvqJlYRhEBkvl0+qMuSbMyxalPICsBh1qV6V/s=
+----
