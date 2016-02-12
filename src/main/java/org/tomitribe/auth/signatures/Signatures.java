@@ -16,7 +16,6 @@
  */
 package org.tomitribe.auth.signatures;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.Map;
 public enum Signatures {
     ;
 
-    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) throws IOException {
+    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
         method = lowercase(method);
         headers = lowercase(headers);
 
