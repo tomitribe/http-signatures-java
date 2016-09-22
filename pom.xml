@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.tomitribe</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>2</version>
+    <version>5</version>
   </parent>
 
   <artifactId>tomitribe-http-signatures</artifactId>
@@ -42,6 +42,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-servlet-api</artifactId>
+      <version>8.5.5</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

@@ -17,25 +17,24 @@
 package org.tomitribe.auth.signatures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public enum Signatures {
     ;
 
-    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
+    private static final String REQUEST_TARGET = "(request-target)";
+
+    public static String createSigningString(final List<String> required, String method, final String uri, final HeaderReader headers) {
         method = lowercase(method);
-        headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());
-
         for (final String key : required) {
-            if ("(request-target)".equals(key)) {
+            if (REQUEST_TARGET.equals(key)) {
                 list.add(Join.join(" ", "(request-target):", method, uri));
 
             } else {
-                final String value = headers.get(key);
+                final String value = headers.read(key);
                 if (value == null) throw new MissingRequiredHeaderException(key);
 
                 list.add(key + ": " + value);
@@ -45,16 +44,7 @@ public enum Signatures {
         return Join.join("\n", list);
     }
 
-    private static Map<String, String> lowercase(final Map<String, String> headers) {
-        final Map<String, String> map = new HashMap<String, String>();
-        for (final Map.Entry<String, String> entry : headers.entrySet()) {
-            map.put(entry.getKey().toLowerCase(), entry.getValue());
-        }
-
-        return map;
-    }
-
     private static String lowercase(final String spec) {
-        return spec.toLowerCase();
+        return spec.toLowerCase(Locale.ENGLISH);
     }
 }

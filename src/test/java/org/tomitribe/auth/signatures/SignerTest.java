@@ -90,7 +90,7 @@ public class SignerTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final Signature signed = signer.sign(method, uri, headers);
+            final Signature signed = signer.sign(method, uri, new HeaderReader.Map(headers));
             assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signed.getSignature());
         }
 
@@ -104,7 +104,7 @@ public class SignerTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final Signature signed = signer.sign(method, uri, headers);
+            final Signature signed = signer.sign(method, uri, new HeaderReader.Map(headers));
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
         }
 
@@ -118,7 +118,7 @@ public class SignerTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final Signature signed = signer.sign(method, uri, headers);
+            final Signature signed = signer.sign(method, uri, new HeaderReader.Map(headers));
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
         }
 
@@ -132,7 +132,7 @@ public class SignerTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final Signature signed = signer.sign(method, uri, headers);
+            final Signature signed = signer.sign(method, uri, new HeaderReader.Map(headers));
             assertEquals("IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=", signed.getSignature());
         }
     }
@@ -148,7 +148,7 @@ public class SignerTest extends Assert {
             final Map<String, String> headers = new HashMap<String, String>();
             headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
 
-            final Signature signed = signer.sign("GET", "/foo/Bar", headers);
+            final Signature signed = signer.sign("GET", "/foo/Bar", new HeaderReader.Map(headers));
             assertEquals("WbB9VXuVdRt1LKQ5mDuT+tiaChn8R7WhdAWAY1lhKZQ=", signed.getSignature());
         }
 
@@ -156,7 +156,7 @@ public class SignerTest extends Assert {
             final Map<String, String> headers = new HashMap<String, String>();
             headers.put("Date", "Tue, 07 Jun 2014 20:51:36 GMT");
 
-            final Signature signed = signer.sign("GET", "/foo/Bar", headers);
+            final Signature signed = signer.sign("GET", "/foo/Bar", new HeaderReader.Map(headers));
             assertEquals("kRkh0bV1wKZSXBgexUB+zlPU88/za5K/gk/F0Aikg7Q=", signed.getSignature());
         }
 
@@ -168,7 +168,7 @@ public class SignerTest extends Assert {
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
 
-            final Signature signed = signer.sign("GET", "/foo/Bar", headers);
+            final Signature signed = signer.sign("GET", "/foo/Bar", new HeaderReader.Map(headers));
             assertEquals("kRkh0bV1wKZSXBgexUB+zlPU88/za5K/gk/F0Aikg7Q=", signed.getSignature());
         }
     }
@@ -181,7 +181,7 @@ public class SignerTest extends Assert {
         final Signer signer = new Signer(key, signature);
 
         final Map<String, String> headers = new HashMap<String, String>();
-        signer.sign("GET", "/foo/Bar", headers);
+        signer.sign("GET", "/foo/Bar", new HeaderReader.Map(headers));
     }
 
     @Test(expected = MissingRequiredHeaderException.class)
