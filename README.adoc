@@ -154,7 +154,7 @@ return signer.sign(method, uri, headers);
 [source,java]
 ----
 final byte[] digest = MessageDigest.getInstance("SHA-256").digest(payload.getBytes()); // <1>
-final String digestHeader = "SHA256=" + new String(Base64.encodeBase64(digest));
+final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
 
 final Signature signature = new Signature("key-alias", "hmac-sha256", null, "(request-target)", "digest"); // <2>
 final Key key = new SecretKeySpec(passphrase.getBytes(), "HmacSHA256");
