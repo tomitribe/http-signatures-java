@@ -27,7 +27,7 @@
 
   <artifactId>tomitribe-http-signatures</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <name>Tomitribe :: HTTP Signatures</name>
 
   <scm>
