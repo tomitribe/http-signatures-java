@@ -18,24 +18,19 @@ package org.tomitribe.auth.signatures;
 
 import javax.crypto.Mac;
 import java.io.IOException;
-import java.security.*;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Provider;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * It is an intentional part of the design that the same Signer instance
+ * It is an intentional part of the design that the same Verifier instance
  * can be reused on several HTTP Messages in a multi-threaded fashion
- *
- * <p>
- * The supplied Signature instance will be used as the basis for all
- * future signatures created from this Signer.
- *
- * <p>
- *  Each call to 'verify' will emit a Signature with the same 'keyId',
- * 'algorithm', 'headers' but a newly calculated 'signature'
- *
  */
 public class Verifier {
 
@@ -144,7 +139,8 @@ public class Verifier {
                 final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
                 mac.init(key);
                 byte[] hash = mac.doFinal(signingStringBytes);
-                return Arrays.equals(hash, signature.getSignature().getBytes());
+                byte[] encoded = Base64.encodeBase64(hash);
+                return Arrays.equals(encoded, signature.getSignature().getBytes());
 
             } catch (NoSuchAlgorithmException e) {
 
