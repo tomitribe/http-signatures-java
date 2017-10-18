@@ -29,8 +29,7 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 /**
- * It is an intentional part of the design that the same Verifier instance
- * can be reused on several HTTP Messages in a multi-threaded fashion
+ * A new instance of the Verifier class needs to be created for each signature.
  */
 public class Verifier {
 
