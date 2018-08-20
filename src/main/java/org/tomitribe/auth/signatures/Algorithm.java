@@ -38,7 +38,14 @@ public enum Algorithm {
     // dsa
     DSA_SHA1("SHA1withDSA", "dsa-sha1", java.security.Signature.class),
     DSA_SHA224("SHA224withDSA", "dsa-sha224", java.security.Signature.class),
-    DSA_SHA256("SHA256withDSA", "dsa-sha256", java.security.Signature.class),;
+    DSA_SHA256("SHA256withDSA", "dsa-sha256", java.security.Signature.class),
+
+    // ecc
+    ECDSA_SHA1("SHA1withECDSA", "ecdsa-sha1", java.security.Signature.class),
+    ECDSA_SHA256("SHA256withECDSA", "ecdsa-sha256", java.security.Signature.class),
+    ECDSA_SHA384("SHA384withECDSA", "ecdsa-sha384", java.security.Signature.class),
+    ECDSA_SHA512("SHA512withECDSA", "ecdsa-sha512", java.security.Signature.class),
+    ;
 
     private static final Map<String, Algorithm> aliases = new HashMap<String, Algorithm>();
 

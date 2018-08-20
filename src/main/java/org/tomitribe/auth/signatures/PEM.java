@@ -69,8 +69,14 @@ public enum PEM {
             switch (object.getPEMObjectType()) {
                 case PRIVATE_KEY_PKCS1:
                     return RSA.privateKeyFromPKCS1(object.getDerBytes());
+                case PRIVATE_EC_KEY_PKCS8:
+                    return EC.privateKeyFromPKCS8(object.getDerBytes());
                 case PRIVATE_KEY_PKCS8:
-                    return RSA.privateKeyFromPKCS8(object.getDerBytes());
+                    try {
+                        return RSA.privateKeyFromPKCS8(object.getDerBytes());
+                    } catch (InvalidKeySpecException e) {
+                        return EC.privateKeyFromPKCS8(object.getDerBytes());
+                    }
                 default:
                     break;
             }
@@ -95,7 +101,11 @@ public enum PEM {
 
                 case PUBLIC_KEY_X509:
 
-                    return RSA.publicKeyFrom(object.getDerBytes());
+                    try {
+                        return RSA.publicKeyFrom(object.getDerBytes());
+                    } catch (InvalidKeySpecException e) {
+                        return EC.publicKeyFrom(object.getDerBytes());
+                    }
 
                 default:
                     break;
@@ -190,6 +200,7 @@ public enum PEM {
      */
     static enum PEMObjectType {
         PRIVATE_KEY_PKCS1("-----BEGIN RSA PRIVATE KEY-----"),
+        PRIVATE_EC_KEY_PKCS8("-----BEGIN EC PRIVATE KEY-----"), // RFC-5915
         PRIVATE_KEY_PKCS8("-----BEGIN PRIVATE KEY-----"),
         PUBLIC_KEY_X509("-----BEGIN PUBLIC KEY-----"),
         CERTIFICATE_X509("-----BEGIN CERTIFICATE-----");
