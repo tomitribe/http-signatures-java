@@ -19,18 +19,7 @@ package org.tomitribe.auth.signatures;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA1;
-import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA224;
-import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA256;
-import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA1;
-import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA224;
-import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA256;
-import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA384;
-import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA512;
-import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA1;
-import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA256;
-import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA384;
-import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA512;
+import static org.tomitribe.auth.signatures.Algorithm.*;
 
 public class AlgorithmTest extends Assert {
 
@@ -48,6 +37,10 @@ public class AlgorithmTest extends Assert {
         assertEquals("dsa-sha1", DSA_SHA1.getPortableName());
         assertEquals("dsa-sha224", DSA_SHA224.getPortableName());
         assertEquals("dsa-sha256", DSA_SHA256.getPortableName());
+        assertEquals("ecdsa-sha1", ECDSA_SHA1.getPortableName());
+        assertEquals("ecdsa-sha256", ECDSA_SHA256.getPortableName());
+        assertEquals("ecdsa-sha384", ECDSA_SHA384.getPortableName());
+        assertEquals("ecdsa-sha512", ECDSA_SHA512.getPortableName());
     }
 
     @Test
@@ -64,6 +57,10 @@ public class AlgorithmTest extends Assert {
         assertEquals("SHA1withDSA", DSA_SHA1.getJmvName());
         assertEquals("SHA224withDSA", DSA_SHA224.getJmvName());
         assertEquals("SHA256withDSA", DSA_SHA256.getJmvName());
+        assertEquals("SHA1withECDSA", ECDSA_SHA1.getJmvName());
+        assertEquals("SHA256withECDSA", ECDSA_SHA256.getJmvName());
+        assertEquals("SHA384withECDSA", ECDSA_SHA384.getJmvName());
+        assertEquals("SHA512withECDSA", ECDSA_SHA512.getJmvName());
     }
 
     @Test
