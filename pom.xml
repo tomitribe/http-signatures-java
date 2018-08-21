@@ -27,14 +27,14 @@
 
   <artifactId>tomitribe-http-signatures</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <name>Tomitribe :: HTTP Signatures</name>
 
   <scm>
     <connection>scm:git:git@github.com:tomitribe/http-signatures-java.git</connection>
     <url>scm:git:git@github.com:tomitribe/http-signatures-java.git</url>
     <developerConnection>scm:git:git@github.com:tomitribe/http-signatures-java.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>tomitribe-http-signatures-1.1</tag>
   </scm>
 
   <properties>
