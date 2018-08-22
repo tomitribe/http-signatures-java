@@ -75,16 +75,18 @@ public class Signer {
             sign.sign("validation".getBytes());
 
         } catch (final RuntimeException e) {
-
-            throw (RuntimeException) e;
-
+            throw e;
         } catch (final Exception e) {
-
             throw new IllegalStateException("Can't initialise the Signer using the provided algorithm and key", e);
         }
     }
 
+    @Deprecated // use sign(String, String, HeaderReader headers)
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
+        return sign(method, uri, new HeaderReader.Map(headers));
+    }
+
+    public Signature sign(final String method, final String uri, final HeaderReader headers) throws IOException {
 
         final String signingString = createSigningString(method, uri, headers);
 
@@ -97,7 +99,12 @@ public class Signer {
         return new Signature(signature.getKeyId(), signature.getAlgorithm(), signedAndEncodedString, signature.getHeaders());
     }
 
+    @Deprecated // use createSigningString(String, String, HeaderReader)
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
+        return createSigningString(method, uri, new HeaderReader.Map(headers));
+    }
+
+    public String createSigningString(final String method, final String uri, final HeaderReader headers) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers);
     }
 
