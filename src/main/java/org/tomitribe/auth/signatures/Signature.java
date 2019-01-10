@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Signature {
 
@@ -135,17 +137,13 @@ public class Signature {
         try {
             authorization = normalize(authorization);
 
-            final String[] split = authorization.split(",");
-
             final Map<String, String> map = new HashMap<String, String>();
 
-            for (String s : split) {
-                s = s.trim();
-                final int i = s.indexOf("=\"");
-
-                final String key = s.substring(0, i).toLowerCase();
-                final String value = s.substring(i + 2, s.length() - 1);
-
+            final Pattern rfc2617Param = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+            final Matcher matcher = rfc2617Param.matcher(authorization);
+            while (matcher.find()) {
+                final String key = matcher.group(1).toLowerCase();
+                final String value = matcher.group(2);
                 map.put(key, value);
             }
 
