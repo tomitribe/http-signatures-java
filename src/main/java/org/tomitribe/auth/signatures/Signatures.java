@@ -25,13 +25,13 @@ public enum Signatures {
     ;
 
     public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
-        method = lowercase(method);
         headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());
 
         for (final String key : required) {
             if ("(request-target)".equals(key)) {
+                method = lowercase(method);
                 list.add(Join.join(" ", "(request-target):", method, uri));
 
             } else {
