@@ -83,6 +83,17 @@ public class SignatureTest {
                 "content-length", join("\n", signature.getHeaders()));
     }
 
+    @Test
+    public void testFromStringWithLdapDNKeyId() throws Exception {
+        String authorization = "Signature keyId=\"UID=jsmith,DC=example,DC=net\",algorithm=\"hmac-sha256\",\n" +
+                "   headers=\"(request-target) host date digest content-length\",\n" +
+                "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
+
+        final Signature signature = Signature.fromString(authorization);
+
+        assertEquals("UID=jsmith,DC=example,DC=net", signature.getKeyId());
+    }
+
     /**
      * Authorization header parameters (keyId, algorithm, headers, signature)
      * may legally not include 'headers'
