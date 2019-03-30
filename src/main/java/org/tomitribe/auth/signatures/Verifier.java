@@ -19,11 +19,11 @@ package org.tomitribe.auth.signatures;
 import javax.crypto.Mac;
 import java.io.IOException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.Provider;
+import java.security.PublicKey;
 import java.security.SignatureException;
-import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -139,8 +139,8 @@ public class Verifier {
                 mac.init(key);
                 byte[] hash = mac.doFinal(signingStringBytes);
                 byte[] encoded = Base64.encodeBase64(hash);
-                return Arrays.equals(encoded, signature.getSignature().getBytes());
 
+                return MessageDigest.isEqual(encoded, signature.getSignature().getBytes());
             } catch (NoSuchAlgorithmException e) {
 
                 throw new UnsupportedAlgorithmException(algorithm.getJmvName());
