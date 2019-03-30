@@ -68,6 +68,7 @@ public class Signature {
      * to the base 64 encoding of the signature.
      */
     private final List<String> headers;
+    private static final Pattern RFC_2617_PARAM = Pattern.compile("(\\w+)=\"([^\"]*)\"");
 
     public Signature(final String keyId, final String algorithm, final String signature, final String... headers) {
         this(keyId, getAlgorithm(algorithm), signature, headers);
@@ -139,8 +140,7 @@ public class Signature {
 
             final Map<String, String> map = new HashMap<String, String>();
 
-            final Pattern rfc2617Param = Pattern.compile("(\\w+)=\"([^\"]*)\"");
-            final Matcher matcher = rfc2617Param.matcher(authorization);
+            final Matcher matcher = RFC_2617_PARAM.matcher(authorization);
             while (matcher.find()) {
                 final String key = matcher.group(1).toLowerCase();
                 final String value = matcher.group(2);
