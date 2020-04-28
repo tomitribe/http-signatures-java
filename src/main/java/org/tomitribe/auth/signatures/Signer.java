@@ -118,8 +118,8 @@ public class Signer {
             try {
 
                 final java.security.Signature instance = provider == null ?
-                        java.security.Signature.getInstance(algorithm.getJmvName()) :
-                        java.security.Signature.getInstance(algorithm.getJmvName(), provider);
+                        java.security.Signature.getInstance(algorithm.getJvmName()) :
+                        java.security.Signature.getInstance(algorithm.getJvmName(), provider);
 
                 instance.initSign(key);
                 instance.update(signingStringBytes);
@@ -127,7 +127,7 @@ public class Signer {
 
             } catch (NoSuchAlgorithmException e) {
 
-                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+                throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
             } catch (Exception e) {
 
@@ -149,13 +149,13 @@ public class Signer {
 
             try {
 
-                final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
+                final Mac mac = provider == null ? Mac.getInstance(algorithm.getJvmName()) : Mac.getInstance(algorithm.getJvmName(), provider);
                 mac.init(key);
                 return mac.doFinal(signingStringBytes);
 
             } catch (NoSuchAlgorithmException e) {
 
-                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+                throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
             } catch (Exception e) {
 
