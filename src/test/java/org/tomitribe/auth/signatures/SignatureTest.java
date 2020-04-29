@@ -88,6 +88,28 @@ public class SignatureTest {
                 "content-length", join("\n", signature.getHeaders()));
     }
 
+    /**
+     * Same as testFromString, but the algorithm is set to 'hs2019',
+     * @throws Exception
+     */
+    @Test
+    public void testFromStringHmacSha256() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\",\n" +
+                "   headers=\"(request-target) host date digest content-length\",\n" +
+                "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
+
+        final Signature signature = Signature.fromString(authorization, Algorithm.HMAC_SHA256);
+
+        assertEquals("hmac-key-1", signature.getKeyId());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
+        assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signature.getSignature());
+        assertEquals("(request-target)\n" +
+                "host\n" +
+                "date\n" +
+                "digest\n" +
+                "content-length", join("\n", signature.getHeaders()));
+    }
+
     @Test
     public void testFromStringWithLdapDNKeyId() throws Exception {
         String authorization = "Signature keyId=\"UID=jsmith,DC=example,DC=net\",algorithm=\"hmac-sha256\",\n" +
