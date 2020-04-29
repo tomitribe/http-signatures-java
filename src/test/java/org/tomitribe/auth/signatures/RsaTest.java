@@ -153,7 +153,8 @@ public class RsaTest extends Assert {
     public void rsaSsaPss() throws Exception {
         final Algorithm algorithm = Algorithm.RSA_PSS;
         final AlgorithmParameterSpec spec = new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
-        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, spec, null, Arrays.asList("date")));
+        final Signer signer = new Signer(privateKey,
+                new Signature("some-key-1", SigningAlgorithm.HS2019, algorithm, spec, null, Arrays.asList("date")));
 
         final Signature signature = signer.sign(method, uri, headers);
         // The RSASSA-PSS signature is non-deterministic, the value of the signature will be different
@@ -165,7 +166,8 @@ public class RsaTest extends Assert {
 
     private void assertSignature(final Algorithm algorithm, final String expected, final String... sign) throws Exception {
 
-        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, null, Arrays.asList(sign)));
+        final Signer signer = new Signer(privateKey,
+                new Signature("some-key-1", SigningAlgorithm.HS2019, algorithm, null, null, Arrays.asList(sign)));
 
         final Signature signed = signer.sign(method, uri, headers);
 

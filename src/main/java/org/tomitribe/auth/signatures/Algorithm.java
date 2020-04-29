@@ -20,6 +20,9 @@ import javax.crypto.Mac;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The cryptographic algorithms for the HTTP signature.
+ */
 public enum Algorithm {
 
     // hmac

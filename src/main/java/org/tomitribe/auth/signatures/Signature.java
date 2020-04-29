@@ -38,6 +38,23 @@ public class Signature {
     private final String keyId;
 
     /**
+     * RECOMMENDED.  The `signingAlgorithm` parameter is used to specify the digital
+     * signature algorithm to use when generating the signature.  Valid
+     * values for this parameter can be found in the Signature Algorithms
+     * registry located at http://www.iana.org/assignments/signature-
+     * algorithms and MUST NOT be marked "deprecated".
+     * 
+     * Verifiers MUST determine the signature's Algorithm from the keyId parameter
+     * rather than from algorithm. If algorithm is provided and differs from or
+     * is incompatible with the algorithm or key material identified by keyId
+     * (for example, algorithm has a value of rsa-sha256 but keyId identifies
+     * an EdDSA key), then implementations MUST produce an error.
+     * 
+     * https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
+     */
+    private final SigningAlgorithm signingAlgorithm;
+
+    /**
      * REQUIRED.  The `algorithm` parameter is used to specify the digital
      * signature algorithm to use when generating the signature.  Valid
      * values for this parameter can be found in the Signature Algorithms
@@ -83,12 +100,14 @@ public class Signature {
      * Construct a signature configuration instance with the specified keyId, algorithm and HTTP headers.
      * 
      * @param keyId An opaque string that the server can use to look up the component they need to validate the signature.
+     * @param signingAlgorithm An identifier for the HTTP Signature algorithm.
+     *  This should be "hs2019" except for legacy applications that use an older version of the draft HTTP signature specification.
+     * @param algorithm The detailed algorithm used to sign the message.
      * @param parameterSpec optional cryptographic parameters for the signature.
-     * @param algorithm The algorithm used to sign the message.
      * @param headers The list of HTTP headers that will be used in the signature.
      */
-    public Signature(final String keyId, final String algorithm, final AlgorithmParameterSpec parameterSpec, final String... headers) {
-        this(keyId, getAlgorithm(algorithm), parameterSpec, null, Arrays.asList(headers));
+    public Signature(final String keyId, final String signingAlgorithm, final String algorithm, final AlgorithmParameterSpec parameterSpec, final List<String> headers) {
+        this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, null, headers);
     }
 
     private static Algorithm getAlgorithm(String algorithm) {
@@ -96,19 +115,33 @@ public class Signature {
         return Algorithm.get(algorithm);
     }
 
-    public Signature(final String keyId, final String algorithm, AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
-        this(keyId, getAlgorithm(algorithm), parameterSpec, signature, headers);
+    private static SigningAlgorithm getSigningAlgorithm(String scheme) {
+        if (scheme == null) throw new IllegalArgumentException("Signing scheme cannot be null");
+        return SigningAlgorithm.get(scheme);
     }
 
-    public Signature(final String keyId, Algorithm algorithm, AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+    public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
+                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+        this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, signature, headers);
+    }
+
+    public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
+                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
         if (algorithm == null) {
             throw new IllegalArgumentException("algorithm is required.");
         }
+        if (signingAlgorithm != null &&
+            signingAlgorithm.getSupportedAlgorithms() != null &&
+            !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
+            throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName() +
+                                                " is not compatible with " + algorithm.getPortableName());
+        }
 
         this.keyId = keyId;
+        this.signingAlgorithm = signingAlgorithm;
         this.algorithm = algorithm;
 
         // this is the only one that can be null cause the object
@@ -117,7 +150,7 @@ public class Signature {
 
         this.parameterSpec = parameterSpec;
 
-        if (headers.size() == 0) {
+        if (headers == null || headers.size() == 0) {
             final List<String> list = Arrays.asList("date");
             this.headers = Collections.unmodifiableList(list);
         } else {
@@ -137,10 +170,30 @@ public class Signature {
         return keyId;
     }
 
+    /**
+     * Returns the detailed implementation algorithm for HTTP signatures.
+     * 
+     * @return the cryptographic algorithm.
+     */
     public Algorithm getAlgorithm() {
         return algorithm;
     }
 
+    /**
+     * Returns the identifier for the HTTP Signature Algorithm, as registered
+     * in the HTTP Signature Algorithms Registry.
+     * 
+     * @return the identifier for the HTTP Signature Algorithm.
+     */
+    public SigningAlgorithm getSigningAlgorithm() {
+        return signingAlgorithm;
+    }
+
+    /**
+     * Returns the base-64 encoded value of the signature.
+     * 
+     * @return the base-64 encoded value of the signature.
+     */
     public String getSignature() {
         return signature;
     }
@@ -158,7 +211,20 @@ public class Signature {
         return headers;
     }
 
-    public static Signature fromString(String authorization) {
+    /**
+     * Constructs a Signature object by parsing the 'Authorization' header.
+     * 
+     * As stated in the HTTP signature specification, the value of the algorithm parameter in
+     * the 'Authorization' header should be set to generic identifier. The detailed algorithm
+     * should be derived from the keyId. Hence it is not possible to determine the detailed
+     * algorithm by inspecting the signature data.
+     * 
+     * @param authorization The value of the HTTP 'Authorization' header containing the signature data.
+     * @param algorithm The detailed cryptographic algorithm for the HTTP signature.
+     * 
+     * @return The Signature object.
+     */
+    public static Signature fromString(String authorization, Algorithm algorithm) {
         try {
             authorization = normalize(authorization);
 
@@ -180,15 +246,39 @@ public class Signature {
             final String keyid = map.get("keyid");
             if (keyid == null) throw new MissingKeyIdException();
 
-            final String algorithm = map.get("algorithm");
-            if (algorithm == null) throw new MissingAlgorithmException();
+            final String algorithmField = map.get("algorithm");
+            if (algorithmField == null) throw new MissingAlgorithmException();
 
             final String signature = map.get("signature");
             if (signature == null) throw new MissingSignatureException();
 
-            final Algorithm parsedAlgorithm = Algorithm.get(algorithm);
+            SigningAlgorithm parsedSigningAlgorithm = null;
+            try {
+                parsedSigningAlgorithm = SigningAlgorithm.get(algorithmField);
+            } catch (UnsupportedAlgorithmException ex) {
+                // This may happen for older implementations that pass the serialize the detailed
+                // algorithm instead of using 'hs2019'. In that case, the value of 'algorithm'
+                // should be one of the supported values in the Algorithm enum. If not, an
+                // exception is raised.
+            }
+            Algorithm parsedAlgorithm = null;
+            try {
+                parsedAlgorithm = Algorithm.get(algorithmField);
+                if (algorithm != null && parsedAlgorithm.getPortableName() != algorithm.getPortableName()) {
+                    throw new IllegalArgumentException("The algorithm does not match the value of the 'Authorization' header.");
+                }
+            } catch (UnsupportedAlgorithmException ex) {
+                // This is expected for new conformant implementations that set the algorithm
+                // field in the 'Authorization' header to 'hs2019'. The algorithm must be
+                // derived from the keyId. The client is responsible for maintaining the
+                // mapping between the keyId and the detailed cryptographic algorithm.
+                if (algorithm == null) {
+                    throw new IllegalArgumentException("The algorithm is required.");
+                }
+                parsedAlgorithm = algorithm;
+            }
 
-            return new Signature(keyid, parsedAlgorithm, null, signature, headers);
+            return new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers);
 
         } catch (AuthenticationException e) {
             throw e;

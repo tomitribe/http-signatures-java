@@ -94,7 +94,9 @@ public class Signer {
 
         final String signedAndEncodedString = new String(encoded, "UTF-8");
 
-        return new Signature(signature.getKeyId(), signature.getAlgorithm(), signature.getParameterSpec(), signedAndEncodedString, signature.getHeaders());
+        return new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
+                             signature.getAlgorithm(), signature.getParameterSpec(),
+                             signedAndEncodedString, signature.getHeaders());
     }
 
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
