@@ -94,7 +94,7 @@ public class Signer {
 
         final String signedAndEncodedString = new String(encoded, "UTF-8");
 
-        return new Signature(signature.getKeyId(), signature.getAlgorithm(), signedAndEncodedString, signature.getHeaders());
+        return new Signature(signature.getKeyId(), signature.getAlgorithm(), signature.getParameterSpec(), signedAndEncodedString, signature.getHeaders());
     }
 
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
@@ -120,7 +120,9 @@ public class Signer {
                 final java.security.Signature instance = provider == null ?
                         java.security.Signature.getInstance(algorithm.getJvmName()) :
                         java.security.Signature.getInstance(algorithm.getJvmName(), provider);
-
+                if (signature.getParameterSpec() != null) {
+                    instance.setParameter(signature.getParameterSpec());
+                }
                 instance.initSign(key);
                 instance.update(signingStringBytes);
                 return instance.sign();

@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,7 +100,7 @@ public class HmacTest extends Assert {
 
         final Signer signer = new Signer(
                 new SecretKeySpec(keyString.getBytes(), algorithm.getJvmName()),
-                new Signature("foo-key-1", algorithm, null, sign)
+                new Signature("foo-key-1", algorithm, null, null, Arrays.asList(sign))
         );
 
         final Signature signed = signer.sign(method, uri, headers);

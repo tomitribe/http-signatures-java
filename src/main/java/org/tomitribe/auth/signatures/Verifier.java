@@ -38,6 +38,12 @@ public class Verifier {
     private final Algorithm algorithm;
     private final Provider provider;
 
+    /**
+     * Constructs a verifier object with the specified key and signature object.
+     * 
+     * @param key The key used to verify the signature.
+     * @param signature The signature object.
+     */
     public Verifier(final Key key, final Signature signature) {
         this(key, signature, null);
     }
@@ -106,7 +112,9 @@ public class Verifier {
                 final java.security.Signature instance = provider == null ?
                         java.security.Signature.getInstance(algorithm.getJvmName()) :
                         java.security.Signature.getInstance(algorithm.getJvmName(), provider);
-
+                if (signature.getParameterSpec() != null) {
+                    instance.setParameter(signature.getParameterSpec());
+                }
                 instance.initVerify(key);
                 instance.update(signingStringBytes);
                 return instance.verify(Base64.decodeBase64(signature.getSignature().getBytes()));

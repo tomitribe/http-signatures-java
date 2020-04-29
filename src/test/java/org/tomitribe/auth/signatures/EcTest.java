@@ -24,6 +24,7 @@ import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,7 +144,7 @@ public class EcTest extends Assert {
 
     private String generateSignature(final Algorithm algorithm, final String... sign) throws Exception {
 
-        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, sign), SUN_EC_PROVIDER);
+        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, null, Arrays.asList(sign)), SUN_EC_PROVIDER);
 
         final Signature signed = signer.sign(method, uri, headers);
 
@@ -152,7 +153,7 @@ public class EcTest extends Assert {
 
     private void verifySignature(final Algorithm algorithm, final String signature, final boolean expected, final String... sign) throws Exception {
 
-        final Verifier verifier = new Verifier(publicKey, new Signature("some-key-1", algorithm, signature, sign), SUN_EC_PROVIDER);
+        final Verifier verifier = new Verifier(publicKey, new Signature("some-key-1", algorithm, null, signature, Arrays.asList(sign)), SUN_EC_PROVIDER);
 
         assertEquals(expected, verifier.verify(method, uri, headers));
     }

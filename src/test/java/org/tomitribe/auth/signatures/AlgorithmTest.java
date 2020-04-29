@@ -34,6 +34,7 @@ public class AlgorithmTest extends Assert {
         assertEquals("rsa-sha256", RSA_SHA256.getPortableName());
         assertEquals("rsa-sha384", RSA_SHA384.getPortableName());
         assertEquals("rsa-sha512", RSA_SHA512.getPortableName());
+        assertEquals("rsassa-pss", RSA_PSS.getPortableName());
         assertEquals("dsa-sha1", DSA_SHA1.getPortableName());
         assertEquals("dsa-sha224", DSA_SHA224.getPortableName());
         assertEquals("dsa-sha256", DSA_SHA256.getPortableName());
@@ -54,6 +55,7 @@ public class AlgorithmTest extends Assert {
         assertEquals("SHA256withRSA", RSA_SHA256.getJvmName());
         assertEquals("SHA384withRSA", RSA_SHA384.getJvmName());
         assertEquals("SHA512withRSA", RSA_SHA512.getJvmName());
+        assertEquals("RSASSA-PSS", RSA_PSS.getJvmName());
         assertEquals("SHA1withDSA", DSA_SHA1.getJvmName());
         assertEquals("SHA224withDSA", DSA_SHA224.getJvmName());
         assertEquals("SHA256withDSA", DSA_SHA256.getJvmName());

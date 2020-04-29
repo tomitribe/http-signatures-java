@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.security.spec.AlgorithmParameterSpec;
 
 public class Signature {
 
@@ -68,10 +69,26 @@ public class Signature {
      * to the base 64 encoding of the signature.
      */
     private final List<String> headers;
+
+    /**
+     * OPTIONAL.  The `parameterSpec` is used to specify the cryptographic
+     * parameters. Some cryptographic algorithm such as RSASSA-PSS 
+     * require parameters.
+     */
+    private final AlgorithmParameterSpec parameterSpec;
+
     private static final Pattern RFC_2617_PARAM = Pattern.compile("(\\w+)=\"([^\"]*)\"");
 
-    public Signature(final String keyId, final String algorithm, final String signature, final String... headers) {
-        this(keyId, getAlgorithm(algorithm), signature, headers);
+    /**
+     * Construct a signature configuration instance with the specified keyId, algorithm and HTTP headers.
+     * 
+     * @param keyId An opaque string that the server can use to look up the component they need to validate the signature.
+     * @param parameterSpec optional cryptographic parameters for the signature.
+     * @param algorithm The algorithm used to sign the message.
+     * @param headers The list of HTTP headers that will be used in the signature.
+     */
+    public Signature(final String keyId, final String algorithm, final AlgorithmParameterSpec parameterSpec, final String... headers) {
+        this(keyId, getAlgorithm(algorithm), parameterSpec, null, Arrays.asList(headers));
     }
 
     private static Algorithm getAlgorithm(String algorithm) {
@@ -79,15 +96,11 @@ public class Signature {
         return Algorithm.get(algorithm);
     }
 
-    public Signature(final String keyId, final Algorithm algorithm, final String signature, final String... headers) {
-        this(keyId, algorithm, signature, Arrays.asList(headers));
+    public Signature(final String keyId, final String algorithm, AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+        this(keyId, getAlgorithm(algorithm), parameterSpec, signature, headers);
     }
 
-    public Signature(final String keyId, final String algorithm, final String signature, final List<String> headers) {
-        this(keyId, getAlgorithm(algorithm), signature, headers);
-    }
-
-    public Signature(final String keyId, Algorithm algorithm, final String signature, final List<String> headers) {
+    public Signature(final String keyId, Algorithm algorithm, AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
@@ -101,6 +114,8 @@ public class Signature {
         // this is the only one that can be null cause the object
         // can be used as a template/specification
         this.signature = signature;
+
+        this.parameterSpec = parameterSpec;
 
         if (headers.size() == 0) {
             final List<String> list = Arrays.asList("date");
@@ -128,6 +143,15 @@ public class Signature {
 
     public String getSignature() {
         return signature;
+    }
+
+    /**
+     * Returns the specification of cryptographic parameters.
+     * 
+     * @return specification of cryptographic parameters.
+     */
+    public AlgorithmParameterSpec getParameterSpec() {
+        return parameterSpec;
     }
 
     public List<String> getHeaders() {
@@ -164,7 +188,7 @@ public class Signature {
 
             final Algorithm parsedAlgorithm = Algorithm.get(algorithm);
 
-            return new Signature(keyid, parsedAlgorithm, signature, headers);
+            return new Signature(keyid, parsedAlgorithm, null, signature, headers);
 
         } catch (AuthenticationException e) {
             throw e;

@@ -31,12 +31,12 @@ public class SignatureTest {
 
     @Test
     public void validSignature() {
-        new Signature("somekey", "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        new Signature("somekey", "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullKey() {
-        new Signature(null, "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        new Signature(null, "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
     }
 
     @Test
@@ -46,12 +46,12 @@ public class SignatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullAlgorithm() {
-        new Signature("somekey", (String) null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        new Signature("somekey", (String) null, null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
     }
 
     @Test
     public void nullHeaders() {
-        final Signature signature = new Signature("somekey", "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=");
+        final Signature signature = new Signature("somekey", "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList());
         assertEquals(1, signature.getHeaders().size()); // should contain at least the Date which is required
         assertEquals("date", signature.getHeaders().get(0).toLowerCase());
     }
@@ -59,7 +59,7 @@ public class SignatureTest {
 
     @Test
     public void roundTripTest() throws Exception {
-        final Signature expected = new Signature("somekey", "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        final Signature expected = new Signature("somekey", "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
         final Signature actual = Signature.fromString(expected.toString());
 
         assertSignature(expected, actual);
@@ -170,7 +170,7 @@ public class SignatureTest {
     @Test
     public void orderTolerance() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-1", "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept");
+        final Signature expected = new Signature("hmac-key-1", "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -195,7 +195,7 @@ public class SignatureTest {
     @Test
     public void caseNormalization() throws Exception {
 
-        final Signature signature = new Signature("hmac-key-1", "hMaC-ShA256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "dAte", "aCcEpt");
+        final Signature signature = new Signature("hmac-key-1", "hMaC-ShA256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("dAte", "aCcEpt"));
 
         assertEquals("hmac-key-1", signature.getKeyId());
         assertEquals("hmac-sha256", signature.getAlgorithm().toString());
@@ -214,7 +214,7 @@ public class SignatureTest {
     @Test
     public void ambiguousParameters() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "dsa-sha1", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
+        final Signature expected = new Signature("hmac-key-3", "dsa-sha1", null, "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", Arrays.asList("date"));
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -236,7 +236,7 @@ public class SignatureTest {
     @Test
     public void parameterCaseTolerance() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", "date");
+        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", null, "DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", Arrays.asList("date"));
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -258,7 +258,7 @@ public class SignatureTest {
     @Test
     public void unknownParameters() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", "PIft5ByT/Nr5RWvB+QLQRyFAvbGmauCOE7FTL0tI+Jg=", "date");
+        final Signature expected = new Signature("hmac-key-3", "rsa-sha256", null, "PIft5ByT/Nr5RWvB+QLQRyFAvbGmauCOE7FTL0tI+Jg=", Arrays.asList("date"));
 
         final List<String> input = Arrays.asList(
                 "scopeId=\"hmac-key-1\"",
@@ -286,13 +286,13 @@ public class SignatureTest {
                 "signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"" +
                 " , ";
 
-        parseAndAssert(authorization, new Signature("hmac-key-1", "hmac-sha256", "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", "date", "accept"));
+        parseAndAssert(authorization, new Signature("hmac-key-1", "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept")));
     }
 
     @Test
     public void testToString() throws Exception {
 
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", "Base64(HMAC-SHA256(signing string))", "(request-target)", "host", "date", "digest", "content-length");
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
 
         String authorization = "Signature keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
