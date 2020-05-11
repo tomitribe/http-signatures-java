@@ -100,7 +100,7 @@ public class HmacTest extends Assert {
 
         final Signer signer = new Signer(
                 new SecretKeySpec(keyString.getBytes(), algorithm.getJvmName()),
-                new Signature("foo-key-1", algorithm, null, null, Arrays.asList(sign))
+                new Signature("foo-key-1", SigningAlgorithm.HS2019, algorithm, null, null, Arrays.asList(sign))
         );
 
         final Signature signed = signer.sign(method, uri, headers);

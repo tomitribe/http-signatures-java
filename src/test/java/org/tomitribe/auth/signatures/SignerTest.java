@@ -24,19 +24,20 @@ import java.security.Key;
 import java.security.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 public class SignerTest extends Assert {
 
     @Test
     public void validSigner() {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Signer(key, signature);
     }
 
     @Test(expected = NullPointerException.class)
     public void nullKey() {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
         new Signer(null, signature);
     }
 
@@ -48,7 +49,21 @@ public class SignerTest extends Assert {
 
     @Test(expected = UnsupportedAlgorithmException.class)
     public void unsupportedAlgorithm() {
-        final Signature signature = new Signature("hmac-key-1", "should fail because of this", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "should fail because of this", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        new Signer(key, signature);
+    }
+
+    @Test(expected = UnsupportedAlgorithmException.class)
+    public void unsupportedSigningAlgorithm() {
+        final Signature signature = new Signature("hmac-key-1", "unsupported signing algorithm", "hmac-sha256", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        new Signer(key, signature);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void conflictingSigningAlgorithm() {
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.RSA_SHA256.getAlgorithmName(), "hmac-sha256", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Signer(key, signature);
     }
@@ -59,7 +74,7 @@ public class SignerTest extends Assert {
             clear();
         }};
 
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Signer(key, signature, p);
     }
@@ -75,7 +90,7 @@ public class SignerTest extends Assert {
     @Test
     public void testSign() throws Exception {
 
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, signature);
@@ -139,7 +154,8 @@ public class SignerTest extends Assert {
 
     @Test
     public void defaultHeaderList() throws Exception {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null);
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256",
+                                                    null, null);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, signature);
@@ -175,7 +191,7 @@ public class SignerTest extends Assert {
 
     @Test(expected = MissingRequiredHeaderException.class)
     public void missingDefaultHeader() throws Exception {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null);
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, signature);
@@ -186,7 +202,7 @@ public class SignerTest extends Assert {
 
     @Test(expected = MissingRequiredHeaderException.class)
     public void missingExplicitHeader() throws Exception {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "date", "accept");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("date", "accept"));
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, signature);
@@ -198,7 +214,7 @@ public class SignerTest extends Assert {
 
     @Test
     public void testSign1() throws Exception {
-        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, signature);
@@ -243,7 +259,7 @@ public class SignerTest extends Assert {
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
 
-            final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "(request-target)", "host", "date", "digest", "content-length");
+            final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
             final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
             final Signer signer = new Signer(key, signature);
 
@@ -266,7 +282,7 @@ public class SignerTest extends Assert {
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
 
-            final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+            final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
             final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
             final Signer signer = new Signer(key, signature);
 
