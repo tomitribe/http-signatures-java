@@ -98,7 +98,7 @@ public class HmacTest extends Assert {
     private void assertSignature(final Algorithm algorithm, final String expected, final String keyString, final String... sign) throws Exception {
 
         final Signer signer = new Signer(
-                new SecretKeySpec(keyString.getBytes(), algorithm.getJmvName()),
+                new SecretKeySpec(keyString.getBytes(), algorithm.getJvmName()),
                 new Signature("foo-key-1", algorithm, null, sign)
         );
 

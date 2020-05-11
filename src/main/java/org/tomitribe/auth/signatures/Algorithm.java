@@ -29,7 +29,7 @@ public enum Algorithm {
     HMAC_SHA384("HmacSHA384", "hmac-sha384", Mac.class),
     HMAC_SHA512("HmacSHA512", "hmac-sha512", Mac.class),
 
-    // rsa
+    // RSA PKCS#1 v1.5 signature
     RSA_SHA1("SHA1withRSA", "rsa-sha1", java.security.Signature.class),
     RSA_SHA256("SHA256withRSA", "rsa-sha256", java.security.Signature.class),
     RSA_SHA384("SHA384withRSA", "rsa-sha384", java.security.Signature.class),
@@ -51,18 +51,19 @@ public enum Algorithm {
 
     static {
         for (final Algorithm algorithm : Algorithm.values()) {
-            aliases.put(normalize(algorithm.getJmvName()), algorithm);
+            aliases.put(normalize(algorithm.getJvmName()), algorithm);
             aliases.put(normalize(algorithm.getPortableName()), algorithm);
         }
     }
 
     private final String portableName;
-    private final String jmvName;
+    // The algorithm name passed to java.security.Signature or Mac.class.
+    private final String jvmName;
     private final Class type;
 
-    Algorithm(final String jmvName, final String portableName, final Class type) {
+    Algorithm(final String jvmName, final String portableName, final Class type) {
         this.portableName = portableName;
-        this.jmvName = jmvName;
+        this.jvmName = jvmName;
         this.type = type;
     }
 
@@ -70,8 +71,8 @@ public enum Algorithm {
         return portableName;
     }
 
-    public String getJmvName() {
-        return jmvName;
+    public String getJvmName() {
+        return jvmName;
     }
 
     public Class getType() {
@@ -83,7 +84,7 @@ public enum Algorithm {
     }
 
     public static String toJvmName(final String name) {
-        return get(name).getJmvName();
+        return get(name).getJvmName();
     }
 
     public static Algorithm get(String name) {

@@ -45,22 +45,22 @@ public class AlgorithmTest extends Assert {
 
     @Test
     public void jvmNames() {
-        assertEquals("HmacSHA1", HMAC_SHA1.getJmvName());
-        assertEquals("HmacSHA224", HMAC_SHA224.getJmvName());
-        assertEquals("HmacSHA256", HMAC_SHA256.getJmvName());
-        assertEquals("HmacSHA384", HMAC_SHA384.getJmvName());
-        assertEquals("HmacSHA512", HMAC_SHA512.getJmvName());
-        assertEquals("SHA1withRSA", RSA_SHA1.getJmvName());
-        assertEquals("SHA256withRSA", RSA_SHA256.getJmvName());
-        assertEquals("SHA384withRSA", RSA_SHA384.getJmvName());
-        assertEquals("SHA512withRSA", RSA_SHA512.getJmvName());
-        assertEquals("SHA1withDSA", DSA_SHA1.getJmvName());
-        assertEquals("SHA224withDSA", DSA_SHA224.getJmvName());
-        assertEquals("SHA256withDSA", DSA_SHA256.getJmvName());
-        assertEquals("SHA1withECDSA", ECDSA_SHA1.getJmvName());
-        assertEquals("SHA256withECDSA", ECDSA_SHA256.getJmvName());
-        assertEquals("SHA384withECDSA", ECDSA_SHA384.getJmvName());
-        assertEquals("SHA512withECDSA", ECDSA_SHA512.getJmvName());
+        assertEquals("HmacSHA1", HMAC_SHA1.getJvmName());
+        assertEquals("HmacSHA224", HMAC_SHA224.getJvmName());
+        assertEquals("HmacSHA256", HMAC_SHA256.getJvmName());
+        assertEquals("HmacSHA384", HMAC_SHA384.getJvmName());
+        assertEquals("HmacSHA512", HMAC_SHA512.getJvmName());
+        assertEquals("SHA1withRSA", RSA_SHA1.getJvmName());
+        assertEquals("SHA256withRSA", RSA_SHA256.getJvmName());
+        assertEquals("SHA384withRSA", RSA_SHA384.getJvmName());
+        assertEquals("SHA512withRSA", RSA_SHA512.getJvmName());
+        assertEquals("SHA1withDSA", DSA_SHA1.getJvmName());
+        assertEquals("SHA224withDSA", DSA_SHA224.getJvmName());
+        assertEquals("SHA256withDSA", DSA_SHA256.getJvmName());
+        assertEquals("SHA1withECDSA", ECDSA_SHA1.getJvmName());
+        assertEquals("SHA256withECDSA", ECDSA_SHA256.getJvmName());
+        assertEquals("SHA384withECDSA", ECDSA_SHA384.getJvmName());
+        assertEquals("SHA512withECDSA", ECDSA_SHA512.getJvmName());
     }
 
     @Test
@@ -73,15 +73,15 @@ public class AlgorithmTest extends Assert {
     @Test
     public void getWithJvmName() throws Exception {
         for (final Algorithm algorithm : Algorithm.values()) {
-            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName()));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJvmName()));
         }
     }
 
     @Test
     public void getNotCaseSensitive() throws Exception {
         for (final Algorithm algorithm : Algorithm.values()) {
-            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().toLowerCase()));
-            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().toUpperCase()));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJvmName().toLowerCase()));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJvmName().toUpperCase()));
 
             assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().toLowerCase()));
             assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().toUpperCase()));
@@ -92,7 +92,7 @@ public class AlgorithmTest extends Assert {
     public void nonAlphaNumericsIgnored() throws Exception {
         for (final Algorithm algorithm : Algorithm.values()) {
             assertEquals(algorithm, Algorithm.get(algorithm.getPortableName().replace("-", " :-./ ")));
-            assertEquals(algorithm, Algorithm.get(algorithm.getJmvName().replace("with", " -/with:.")));
+            assertEquals(algorithm, Algorithm.get(algorithm.getJvmName().replace("with", " -/with:.")));
         }
     }
 

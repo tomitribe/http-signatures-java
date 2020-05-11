@@ -104,8 +104,8 @@ public class Verifier {
             try {
 
                 final java.security.Signature instance = provider == null ?
-                        java.security.Signature.getInstance(algorithm.getJmvName()) :
-                        java.security.Signature.getInstance(algorithm.getJmvName(), provider);
+                        java.security.Signature.getInstance(algorithm.getJvmName()) :
+                        java.security.Signature.getInstance(algorithm.getJvmName(), provider);
 
                 instance.initVerify(key);
                 instance.update(signingStringBytes);
@@ -113,7 +113,7 @@ public class Verifier {
 
             } catch (NoSuchAlgorithmException e) {
 
-                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+                throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
             } catch (Exception e) {
 
@@ -135,7 +135,7 @@ public class Verifier {
 
             try {
 
-                final Mac mac = provider == null ? Mac.getInstance(algorithm.getJmvName()) : Mac.getInstance(algorithm.getJmvName(), provider);
+                final Mac mac = provider == null ? Mac.getInstance(algorithm.getJvmName()) : Mac.getInstance(algorithm.getJvmName(), provider);
                 mac.init(key);
                 byte[] hash = mac.doFinal(signingStringBytes);
                 byte[] encoded = Base64.encodeBase64(hash);
@@ -143,7 +143,7 @@ public class Verifier {
                 return MessageDigest.isEqual(encoded, signature.getSignature().getBytes());
             } catch (NoSuchAlgorithmException e) {
 
-                throw new UnsupportedAlgorithmException(algorithm.getJmvName());
+                throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
             } catch (Exception e) {
 
