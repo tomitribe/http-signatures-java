@@ -64,6 +64,17 @@ public class Signature {
     private final Algorithm algorithm;
 
     /**
+     * REQUIRED.  The `signature` parameter is a base 64 encoded digital
+     * signature, as described in RFC 4648 [RFC4648], Section 4 [4].  The
+     * client uses the `algorithm` and `headers` signature parameters to
+     * form a canonicalized `signing string`.  This `signing string` is then
+     * signed with the key associated with `keyId` and the algorithm
+     * corresponding to `algorithm`.  The `signature` parameter is then set
+     * to the base 64 encoding of the signature.
+     */
+    private final String signature;
+
+    /**
      * OPTIONAL.  The `headers` parameter is used to specify the list of
      * HTTP headers included when generating the signature for the message.
      * If specified, it should be a lowercased, quoted list of HTTP header
@@ -73,17 +84,6 @@ public class Signature {
      * that the list order is important, and MUST be specified in the order
      * the HTTP header field-value pairs are concatenated together during
      * signing.
-     */
-    private final String signature;
-
-    /**
-     * REQUIRED.  The `signature` parameter is a base 64 encoded digital
-     * signature, as described in RFC 4648 [RFC4648], Section 4 [4].  The
-     * client uses the `algorithm` and `headers` signature parameters to
-     * form a canonicalized `signing string`.  This `signing string` is then
-     * signed with the key associated with `keyId` and the algorithm
-     * corresponding to `algorithm`.  The `signature` parameter is then set
-     * to the base 64 encoding of the signature.
      */
     private final List<String> headers;
 
