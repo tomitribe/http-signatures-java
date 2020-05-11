@@ -35,6 +35,11 @@ public enum Algorithm {
     RSA_SHA384("SHA384withRSA", "rsa-sha384", java.security.Signature.class),
     RSA_SHA512("SHA512withRSA", "rsa-sha512", java.security.Signature.class),
 
+    // RSA PSS signature
+    // This algorithm requires parameter. For example:
+    // new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1)
+    RSA_PSS("RSASSA-PSS", "rsassa-pss", java.security.Signature.class),
+
     // dsa
     DSA_SHA1("SHA1withDSA", "dsa-sha1", java.security.Signature.class),
     DSA_SHA224("SHA224withDSA", "dsa-sha224", java.security.Signature.class),

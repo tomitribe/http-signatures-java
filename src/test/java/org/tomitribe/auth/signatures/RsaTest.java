@@ -22,8 +22,14 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.PSSParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 
 public class RsaTest extends Assert {
 
@@ -143,9 +149,23 @@ public class RsaTest extends Assert {
                 , "(request-target)", "host", "date");
     }
 
+    @Test
+    public void rsaSsaPss() throws Exception {
+        final Algorithm algorithm = Algorithm.RSA_PSS;
+        final AlgorithmParameterSpec spec = new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
+        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, spec, null, Arrays.asList("date")));
+
+        final Signature signature = signer.sign(method, uri, headers);
+        // The RSASSA-PSS signature is non-deterministic, the value of the signature will be different
+        // every time a signature is generated.
+        final Verifier verifier = new Verifier(publicKey, signature);
+        boolean verifies = verifier.verify(method, uri, headers);
+        assertTrue(verifies);
+    }
+
     private void assertSignature(final Algorithm algorithm, final String expected, final String... sign) throws Exception {
 
-        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, sign));
+        final Signer signer = new Signer(privateKey, new Signature("some-key-1", algorithm, null, null, Arrays.asList(sign)));
 
         final Signature signed = signer.sign(method, uri, headers);
 
