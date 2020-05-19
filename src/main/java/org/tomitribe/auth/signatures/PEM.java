@@ -57,10 +57,15 @@ public enum PEM {
      * Returns the first private key that is found from the input stream of a
      * PEM file.
      *
+     * @param is Inputstream to read a private key from
+     * @return the first PrivateKey found in the stream
+     *
      * @throws java.security.spec.InvalidKeySpecException
      *             if failed to convert the DER bytes into a private key.
      * @throws IllegalArgumentException
      *             if no private key is found.
+     * @throws IOException
+     *              if an IO exception occurs while reading the stream
      */
     public static PrivateKey readPrivateKey(final InputStream is) throws InvalidKeySpecException, IOException {
 
@@ -88,10 +93,15 @@ public enum PEM {
      * Returns the first public key that is found from the input stream of a PEM
      * file.
      *
+     * @param is The Input stream to read
+     * @return the first PublicKey found in the stream
+     *
      * @throws java.security.spec.InvalidKeySpecException
      *             if failed to convert the DER bytes into a public key.
      * @throws IllegalArgumentException
      *             if no public key is found.
+     * @throws IOException
+     *             if an IO exception occurs while reading the stream
      */
     public static PublicKey readPublicKey(final InputStream is) throws InvalidKeySpecException, IOException {
 

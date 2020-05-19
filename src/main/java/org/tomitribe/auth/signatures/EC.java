@@ -37,6 +37,9 @@ public enum EC {
 
     /**
      * Returns a private key constructed from the given DER bytes in PKCS#8 format.
+     * @param pkcs8 DER bytes in PKCS#8 format
+     * @return Private key
+     * @throws InvalidKeySpecException if the DER bytes cannot be converted to a private key
      */
     public static PrivateKey privateKeyFromPKCS8(final byte[] pkcs8) throws InvalidKeySpecException {
         try {
@@ -52,6 +55,9 @@ public enum EC {
 
     /**
      * Returns a public key constructed from the given DER bytes.
+     * @param derBytes DER bytes
+     * @return Public key
+     * @throws InvalidKeySpecException if the DER bytes cannot be converted to a public key
      */
     public static PublicKey publicKeyFrom(final byte[] derBytes) throws InvalidKeySpecException {
         try {

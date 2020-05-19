@@ -36,7 +36,7 @@ import java.util.Arrays;
  * 
  * The default value for this parameter should be "hs2019".
  * 
- * @see https://www.ietf.org/id/draft-ietf-httpbis-message-signatures-00.html
+ * @see <a href="https://www.ietf.org/id/draft-ietf-httpbis-message-signatures-00.html">https://www.ietf.org/id/draft-ietf-httpbis-message-signatures-00.html</a>
  */
 public enum SigningAlgorithm {
 
