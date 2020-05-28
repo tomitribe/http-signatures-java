@@ -300,9 +300,19 @@ public class Signature {
 
     @Override
     public String toString() {
+        Object alg;
+        if (SigningAlgorithm.HS2019.equals(signingAlgorithm)) {
+            // When the signing algorithm is set to 'hs2019', the value of the algorithm
+            // field must be set to 'hs2019'. The specific crypto algorithm is not
+            // serialized in the 'Authorization' header, the server must derive the value
+            // from the keyId.
+            alg = signingAlgorithm;
+        } else {
+            alg = algorithm;
+        }
         return "Signature " +
                 "keyId=\"" + keyId + '\"' +
-                ",algorithm=\"" + algorithm + '\"' +
+                ",algorithm=\"" + alg + '\"' +
                 ",headers=\"" + Join.join(" ", headers) + '\"' +
                 ",signature=\"" + signature + '\"';
     }
