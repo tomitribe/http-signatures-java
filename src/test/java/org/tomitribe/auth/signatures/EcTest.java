@@ -130,6 +130,28 @@ public class EcTest extends Assert {
                 , "(request-target)", "host", "date");
     }
 
+    @Test
+    public void ecdsaSha256_P1363() throws Exception {
+        final Algorithm algorithm = Algorithm.ECDSA_SHA256_P1363;
+        String signature = generateSignature(algorithm, "date");
+        verifySignature(algorithm, signature, true, "date");
+    }
+
+
+    @Test
+    public void ecdsaSha384_P1363() throws Exception {
+        final Algorithm algorithm = Algorithm.ECDSA_SHA384_P1363;
+        String signature = generateSignature(algorithm, "date");
+        verifySignature(algorithm, signature, true, "date");
+    }
+
+    @Test
+    public void ecdsaSha512_P1363() throws Exception {
+        final Algorithm algorithm = Algorithm.ECDSA_SHA512_P1363;
+        String signature = generateSignature(algorithm, "date");
+        verifySignature(algorithm, signature, true, "date");
+    }
+
     private void assertSignature(final Algorithm algorithm, final String expected, final String... sign) throws Exception {
         String generated = generateSignature(algorithm, sign);
 
