@@ -60,6 +60,8 @@ public enum Algorithm {
     DSA_SHA3_512("SHA3-512withDSA", "dsa-sha3-512", java.security.Signature.class),
 
     // ecdsa
+    // The format of the Signature bytes for these algorithms is an ASN.1 encoded
+    // sequence as specified in RFC 3279 section 2.2.2.
     ECDSA_SHA1("SHA1withECDSA", "ecdsa-sha1", java.security.Signature.class),
     ECDSA_SHA256("SHA256withECDSA", "ecdsa-sha256", java.security.Signature.class),
     ECDSA_SHA384("SHA384withECDSA", "ecdsa-sha384", java.security.Signature.class),
@@ -72,9 +74,8 @@ public enum Algorithm {
 
     // ecdsa in P1363 Format.
     // The ECDSA signature algorithms as defined in ANSI X9.62 with an output as
-    // defined in IEEE P1363 format. The format of the Signature bytes for these
-    // algorithms is an ASN.1 encoded sequence of the integers r and s:
-    //   SEQUENCE ::= { r INTEGER, s INTEGER }
+    // defined in IEEE P1363 format.
+    // The signature is the raw concatenation of r and s.
     ECDSA_SHA256_P1363("SHA256withECDSAinP1363Format", "ecdsa-sha256-p1363", java.security.Signature.class),
     ECDSA_SHA384_P1363("SHA384withECDSAinP1363Format", "ecdsa-sha384-p1363", java.security.Signature.class),
     ECDSA_SHA512_P1363("SHA512withECDSAinP1363Format", "ecdsa-sha512-p1363", java.security.Signature.class),
