@@ -27,7 +27,7 @@
 
   <artifactId>tomitribe-http-signatures</artifactId>
   <packaging>jar</packaging>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.5-SNAPSHOT</version>
   <name>Tomitribe :: HTTP Signatures</name>
 
   <scm>
@@ -72,13 +72,6 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.65</version>
-        <!--<scope>test</scope> -->
-    </dependency>
   </dependencies>
-
 
 </project>
