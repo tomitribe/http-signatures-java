@@ -25,125 +25,144 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.security.spec.AlgorithmParameterSpec;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 public class Signature {
 
     /**
-     * REQUIRED.  The `keyId` field is an opaque string that the server can
-     * use to look up the component they need to validate the signature.  It
-     * could be an SSH key fingerprint, a URL to machine-readable key data,
-     * an LDAP DN, etc.  Management of keys and assignment of `keyId` is out
-     * of scope for this document.
+     * The maximum time skew between the client and the server.
+     * This is used to validate the (created) and (expires) fields in the HTTP signature.
+     */
+    public static long maxTimeSkewInSeconds = 30;
+
+    /**
+     * REQUIRED. The `keyId` field is an opaque string that the server can use to
+     * look up the component they need to validate the signature. It could be an SSH
+     * key fingerprint, a URL to machine-readable key data, an LDAP DN, etc.
+     * Management of keys and assignment of `keyId` is out of scope for this
+     * document.
      */
     private final String keyId;
 
     /**
-     * RECOMMENDED.  The `signingAlgorithm` parameter is used to specify the digital
-     * signature algorithm to use when generating the signature.  Valid
-     * values for this parameter can be found in the Signature Algorithms
-     * registry located at http://www.iana.org/assignments/signature-
-     * algorithms and MUST NOT be marked "deprecated".
+     * RECOMMENDED. The `signingAlgorithm` parameter is used to specify the digital
+     * signature algorithm to use when generating the signature. Valid values for
+     * this parameter can be found in the Signature Algorithms registry located at
+     * http://www.iana.org/assignments/signature- algorithms and MUST NOT be marked
+     * "deprecated".
      * 
      * Verifiers MUST determine the signature's Algorithm from the keyId parameter
-     * rather than from algorithm. If algorithm is provided and differs from or
-     * is incompatible with the algorithm or key material identified by keyId
-     * (for example, algorithm has a value of rsa-sha256 but keyId identifies
-     * an EdDSA key), then implementations MUST produce an error.
+     * rather than from algorithm. If algorithm is provided and differs from or is
+     * incompatible with the algorithm or key material identified by keyId (for
+     * example, algorithm has a value of rsa-sha256 but keyId identifies an EdDSA
+     * key), then implementations MUST produce an error.
      * 
      * https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
      */
     private final SigningAlgorithm signingAlgorithm;
 
     /**
-     * REQUIRED.  The `algorithm` parameter is used to specify the digital
-     * signature algorithm to use when generating the signature.  Valid
-     * values for this parameter can be found in the Signature Algorithms
-     * registry located at http://www.iana.org/assignments/signature-
-     * algorithms and MUST NOT be marked "deprecated".
+     * REQUIRED. The `algorithm` parameter is used to specify the digital signature
+     * algorithm to use when generating the signature. Valid values for this
+     * parameter can be found in the Signature Algorithms registry located at
+     * http://www.iana.org/assignments/signature- algorithms and MUST NOT be marked
+     * "deprecated".
      */
     private final Algorithm algorithm;
 
     /**
-     * REQUIRED.  The `signature` parameter is a base 64 encoded digital
-     * signature, as described in RFC 4648 [RFC4648], Section 4 [4].  The
-     * client uses the `algorithm` and `headers` signature parameters to
-     * form a canonicalized `signing string`.  This `signing string` is then
-     * signed with the key associated with `keyId` and the algorithm
-     * corresponding to `algorithm`.  The `signature` parameter is then set
-     * to the base 64 encoding of the signature.
+     * REQUIRED. The `signature` parameter is a base 64 encoded digital signature,
+     * as described in RFC 4648 [RFC4648], Section 4 [4]. The client uses the
+     * `algorithm` and `headers` signature parameters to form a canonicalized
+     * `signing string`. This `signing string` is then signed with the key
+     * associated with `keyId` and the algorithm corresponding to `algorithm`. The
+     * `signature` parameter is then set to the base 64 encoding of the signature.
      */
     private final String signature;
 
     /**
-     * OPTIONAL.  The `headers` parameter is used to specify the list of
-     * HTTP headers included when generating the signature for the message.
-     * If specified, it should be a lowercased, quoted list of HTTP header
-     * fields, separated by a single space character.  If not specified,
-     * implementations MUST operate as if the field were specified with a
-     * single value, the `Date` header, in the list of HTTP headers.  Note
-     * that the list order is important, and MUST be specified in the order
-     * the HTTP header field-value pairs are concatenated together during
-     * signing.
+     * OPTIONAL. The `headers` parameter is used to specify the list of HTTP headers
+     * included when generating the signature for the message. If specified, it
+     * should be a lowercased, quoted list of HTTP header fields, separated by a
+     * single space character. If not specified, implementations MUST operate as if
+     * the field were specified with a single value, the `Date` header, in the list
+     * of HTTP headers. Note that the list order is important, and MUST be specified
+     * in the order the HTTP header field-value pairs are concatenated together
+     * during signing.
      */
     private final List<String> headers;
 
     /**
-     * OPTIONAL.  The `parameterSpec` is used to specify the cryptographic
-     * parameters. Some cryptographic algorithm such as RSASSA-PSS 
-     * require parameters.
+     * OPTIONAL. The `parameterSpec` is used to specify the cryptographic
+     * parameters. Some cryptographic algorithm such as RSASSA-PSS require
+     * parameters.
      */
     private final AlgorithmParameterSpec parameterSpec;
 
     /**
-     * OPTIONAL. The duration of the signature validity. If set, this is
-     * used to calculate the '(expires)' field in the HTTP signature.
+     * OPTIONAL. The signature's Creation Time, in seconds since the epoch.
      */
-    private Double signatureValidity;
-
-    private static final Pattern RFC_2617_PARAM = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+    private Long signatureCreationTime;
 
     /**
-     * Construct a signature configuration instance with the specified keyId, algorithm and HTTP headers.
-     * 
-     * @param keyId An opaque string that the server can use to look up the component they need to validate the signature.
-     * @param signingAlgorithm An identifier for the HTTP Signature algorithm.
-     *  This should be "hs2019" except for legacy applications that use an older version of the draft HTTP signature specification.
-     * @param algorithm The detailed algorithm used to sign the message.
-     * @param parameterSpec optional cryptographic parameters for the signature.
-     * @param headers The list of HTTP headers that will be used in the signature.
+     * OPTIONAL. The signature's Expiration Time, as a decimal value in seconds
+     * since the epoch.
      */
-    public Signature(final String keyId, final String signingAlgorithm, final String algorithm, final AlgorithmParameterSpec parameterSpec, final List<String> headers) {
+    private Double signatureExpirationTime;
+
+    private static final Pattern RFC_2617_PARAM = Pattern
+            .compile("(?<key>\\w+)=((\"(?<stringValue>[^\"]*)\")|(?<numberValue>\\d+\\.?\\d*))");
+
+    /**
+     * Construct a signature configuration instance with the specified keyId,
+     * algorithm and HTTP headers.
+     * 
+     * @param keyId            An opaque string that the server can use to look up
+     *                         the component they need to validate the signature.
+     * @param signingAlgorithm An identifier for the HTTP Signature algorithm. This
+     *                         should be "hs2019" except for legacy applications
+     *                         that use an older version of the draft HTTP signature
+     *                         specification.
+     * @param algorithm        The detailed algorithm used to sign the message.
+     * @param parameterSpec    optional cryptographic parameters for the signature.
+     * @param headers          The list of HTTP headers that will be used in the
+     *                         signature.
+     */
+    public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
+            final AlgorithmParameterSpec parameterSpec, final List<String> headers) {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, null, headers);
     }
 
     private static Algorithm getAlgorithm(String algorithm) {
-        if (algorithm == null) throw new IllegalArgumentException("Algorithm cannot be null");
+        if (algorithm == null)
+            throw new IllegalArgumentException("Algorithm cannot be null");
         return Algorithm.get(algorithm);
     }
 
     private static SigningAlgorithm getSigningAlgorithm(String scheme) {
-        if (scheme == null) throw new IllegalArgumentException("Signing scheme cannot be null");
+        if (scheme == null)
+            throw new IllegalArgumentException("Signing scheme cannot be null");
         return SigningAlgorithm.get(scheme);
     }
 
     public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+            final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, signature, headers);
     }
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+            final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
         if (algorithm == null) {
             throw new IllegalArgumentException("algorithm is required.");
         }
-        if (signingAlgorithm != null &&
-            signingAlgorithm.getSupportedAlgorithms() != null &&
-            !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
-            throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName() +
-                                                " is not compatible with " + algorithm.getPortableName());
+        if (signingAlgorithm != null && signingAlgorithm.getSupportedAlgorithms() != null
+                && !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
+            throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName()
+                    + " is not compatible with " + algorithm.getPortableName());
         }
 
         this.keyId = keyId;
@@ -165,20 +184,37 @@ public class Signature {
     }
 
     /**
-     * Sets the signature validity, in seconds.
+     * Sets the signature creation time, in seconds since the epoch.
      */
-    public Signature signatureValidity(Double signatureValidity) {
-        this.signatureValidity = signatureValidity;
+    public Signature signatureCreationTime(Long signatureCreationTime) {
+        this.signatureCreationTime = signatureCreationTime;
         return this;
     }
 
     /**
-     * Returns the value of the signature validity, in seconds.
+     * Returns the signature creation time, in seconds since the epoch.
      * 
-     * @return the value of the signature validity, in seconds.
+     * @return the signature creation time, in seconds since the epoch.
      */
-    public Double getSignatureValidity() {
-        return signatureValidity;
+    public Long getSignatureCreationTime() {
+        return signatureCreationTime;
+    }
+
+    /**
+     * Sets the signature expiration time, in seconds since the epoch.
+     */
+    public Signature signatureExpirationTime(Double signatureExpirationTime) {
+        this.signatureExpirationTime = signatureExpirationTime;
+        return this;
+    }
+
+    /**
+     * Returns the signature expiration time, in seconds since the epoch.
+     * 
+     * @return the signature expiration time, in seconds since the epoch.
+     */
+    public Double getSignatureExpirationTime() {
+        return signatureExpirationTime;
     }
 
     private List<String> lowercase(List<String> headers) {
@@ -203,8 +239,8 @@ public class Signature {
     }
 
     /**
-     * Returns the identifier for the HTTP Signature Algorithm, as registered
-     * in the HTTP Signature Algorithms Registry.
+     * Returns the identifier for the HTTP Signature Algorithm, as registered in the
+     * HTTP Signature Algorithms Registry.
      * 
      * @return the identifier for the HTTP Signature Algorithm.
      */
@@ -237,44 +273,138 @@ public class Signature {
     /**
      * Constructs a Signature object by parsing the 'Authorization' header.
      * 
-     * As stated in the HTTP signature specification, the value of the algorithm parameter in
-     * the 'Authorization' header should be set to generic identifier. The detailed algorithm
-     * should be derived from the keyId. Hence it is not possible to determine the detailed
-     * algorithm by inspecting the signature data.
+     * As stated in the HTTP signature specification, the value of the algorithm
+     * parameter in the 'Authorization' header should be set to generic identifier.
+     * The detailed algorithm should be derived from the keyId. Hence it is not
+     * possible to determine the detailed algorithm by inspecting the signature
+     * data.
      * 
-     * @param authorization The value of the HTTP 'Authorization' header containing the signature data.
-     * @param algorithm The detailed cryptographic algorithm for the HTTP signature.
+     * @param authorization The value of the HTTP 'Authorization' header containing
+     *                      the signature data.
+     * @param algorithm     The detailed cryptographic algorithm for the HTTP
+     *                      signature.
      * 
      * @return The Signature object.
      */
     public static Signature fromString(String authorization, Algorithm algorithm) {
+        /**
+         * A HTTP signature field value in the authorization header.
+         */
+        class FieldValue {
+            /**
+             * The field value. It may be a string or number.
+             */
+            private Object value;
+            /**
+             * A flag indicating whether the field is a string or number.
+             */
+            private boolean isNumber;
+
+            FieldValue(String value, boolean isNumber) throws ParseException {
+                this.isNumber = isNumber;
+                if (isNumber) {
+                    this.value = NumberFormat.getInstance().parse(value);
+                } else {
+                    this.value = value;
+                }
+            }
+
+            /** Returns true if the field is a string */
+            boolean isString() { return !isNumber; }
+            /** Returns true if the field is a number */
+            boolean isNumber() { return isNumber; }
+            /** Returns true if the field is an integer value */
+            boolean isInteger() { return value instanceof Long; }
+
+            /** Returns the field as a string, or null if the field is not a string. */
+            String getValueAsString() {
+                if (!isString()) return null;
+                return (String)value;
+            }
+
+            /** Returns the field as a long value, or null if the field is not a integer number. */
+            Long getValueAsLong() {
+                if (!isInteger()) return null;
+                return ((Number)value).longValue();
+            }
+            /** Returns the field as a double value, or null if the field is not a number. */
+            Double getValueAsDouble() {
+                if (!isNumber()) return null;
+                return ((Number)value).doubleValue();
+            }
+
+        }
+
         try {
             authorization = normalize(authorization);
 
-            final Map<String, String> map = new HashMap<String, String>();
+            final Map<String, FieldValue> map = new HashMap<String, FieldValue>();
 
             final Matcher matcher = RFC_2617_PARAM.matcher(authorization);
             while (matcher.find()) {
-                final String key = matcher.group(1).toLowerCase();
-                final String value = matcher.group(2);
-                map.put(key, value);
+                final String key = matcher.group("key").toLowerCase();
+                // The field value may be a double-quoted string or a number.
+                boolean isNumber = false;
+                String value = matcher.group("stringValue");
+                if (value == null) {
+                    value = matcher.group("numberValue");
+                    isNumber = true;
+                }
+                map.put(key, new FieldValue(value, isNumber));
             }
 
             final List<String> headers = new ArrayList<String>();
-            final String headerString = map.get("headers");
-            if (headerString != null) {
-                Collections.addAll(headers, headerString.toLowerCase().split(" +"));
+            FieldValue fv = map.get("headers");
+            if (fv != null) {
+                if (!fv.isString()) {
+                    throw new IllegalArgumentException("headers field must be a double-quoted string");
+                }
+                Collections.addAll(headers, fv.getValueAsString().toLowerCase().split(" +"));
             }
 
-            final String keyid = map.get("keyid");
+            String keyid = null;
+            fv = map.get("keyid");
+            if (fv != null && fv.isString()) {
+                keyid = fv.getValueAsString();
+            }
             if (keyid == null) throw new MissingKeyIdException();
 
-            final String algorithmField = map.get("algorithm");
+            String algorithmField = null;
+            fv = map.get("algorithm");
+            if (fv != null && fv.isString()) {
+                algorithmField = fv.getValueAsString();
+            }
             if (algorithmField == null) throw new MissingAlgorithmException();
 
-            final String signature = map.get("signature");
+            String signature = null;
+            fv = map.get("signature");
+            if (fv != null && fv.isString()) {
+                signature = fv.getValueAsString();
+            }
             if (signature == null) throw new MissingSignatureException();
 
+            Long created = null;
+            fv = map.get("created");
+            if (fv != null) {
+                if (!fv.isInteger()) {
+                    throw new InvalidCreatedFieldException("Field must be an integer value");
+                }
+                created = fv.getValueAsLong();
+                if (created > (System.currentTimeMillis() / 1000L) + maxTimeSkewInSeconds) {
+                    throw new InvalidCreatedFieldException("Signature is not valid yet");
+                }
+            }
+            Double expires = null;
+            fv = map.get("expires");
+            if (fv != null) {
+                if (!fv.isNumber()) {
+                    throw new InvalidExpiresFieldException("Field must be a number");
+                }
+                expires = fv.getValueAsDouble();
+                if (expires < (System.currentTimeMillis() / 1000L)) {
+                    throw new InvalidExpiresFieldException("Signature has expired");
+                }
+            }
             SigningAlgorithm parsedSigningAlgorithm = null;
             try {
                 parsedSigningAlgorithm = SigningAlgorithm.get(algorithmField);
@@ -301,7 +431,14 @@ public class Signature {
                 parsedAlgorithm = algorithm;
             }
 
-            return new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers);
+            Signature s = new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers);
+            if (created != null) {
+                s = s.signatureCreationTime(created);
+            }
+            if (expires != null) {
+                s = s.signatureExpirationTime(expires);
+            }
+            return s;
 
         } catch (AuthenticationException e) {
             throw e;

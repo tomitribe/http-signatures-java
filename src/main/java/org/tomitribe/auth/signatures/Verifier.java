@@ -90,7 +90,7 @@ public class Verifier {
     }
 
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, signature.getSignatureValidity());
+        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, signature.getSignatureExpirationTime());
     }
 
     private interface Verify {
