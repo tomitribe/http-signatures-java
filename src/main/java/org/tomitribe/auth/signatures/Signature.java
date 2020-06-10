@@ -31,12 +31,6 @@ import java.text.ParseException;
 public class Signature {
 
     /**
-     * The maximum time skew between the client and the server.
-     * This is used to validate the (created) and (expires) fields in the HTTP signature.
-     */
-    public static long maxTimeSkewInSeconds = 30;
-
-    /**
      * REQUIRED. The `keyId` field is an opaque string that the server can use to
      * look up the component they need to validate the signature. It could be an SSH
      * key fingerprint, a URL to machine-readable key data, an LDAP DN, etc.
@@ -113,6 +107,12 @@ public class Signature {
 
     private static final Pattern RFC_2617_PARAM = Pattern
             .compile("(?<key>\\w+)=((\"(?<stringValue>[^\"]*)\")|(?<numberValue>\\d+\\.?\\d*))");
+
+    /**
+     * The maximum time skew between the client and the server.
+     * This is used to validate the (created) and (expires) fields in the HTTP signature.
+     */
+    public static long maxTimeSkewInSeconds = 30;
 
     /**
      * Construct a signature configuration instance with the specified keyId,
