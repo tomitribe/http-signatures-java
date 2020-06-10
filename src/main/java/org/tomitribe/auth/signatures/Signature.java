@@ -32,7 +32,7 @@ public class Signature {
 
     /**
      * REQUIRED.  The `keyId` field is an opaque string that the server can
-     * use to look up the component they need to validate the signature. It
+     * use to look up the component they need to validate the signature.  It
      * could be an SSH key fingerprint, a URL to machine-readable key data,
      * an LDAP DN, etc.  Management of keys and assignment of `keyId` is out
      * of scope for this document.
@@ -66,24 +66,26 @@ public class Signature {
     private final Algorithm algorithm;
 
     /**
-     * REQUIRED. The `signature` parameter is a base 64 encoded digital signature,
-     * as described in RFC 4648 [RFC4648], Section 4 [4]. The client uses the
-     * `algorithm` and `headers` signature parameters to form a canonicalized
-     * `signing string`. This `signing string` is then signed with the key
-     * associated with `keyId` and the algorithm corresponding to `algorithm`. The
-     * `signature` parameter is then set to the base 64 encoding of the signature.
+     * REQUIRED. The `signature` parameter is a base 64 encoded digital
+     * signature, as described in RFC 4648 [RFC4648], Section 4 [4].  The
+     * client uses the `algorithm` and `headers` signature parameters to
+     * form a canonicalized `signing string`. This `signing string` is then
+     * signed with the key associated with `keyId` and the algorithm
+     * corresponding to `algorithm`. The `signature` parameter is then set
+     * to the base 64 encoding of the signature.
      */
     private final String signature;
 
     /**
      * OPTIONAL. The `headers` parameter is used to specify the list of HTTP headers
-     * included when generating the signature for the message. If specified, it
-     * should be a lowercased, quoted list of HTTP header fields, separated by a
-     * single space character. If not specified, implementations MUST operate as if
-     * the field were specified with a single value, the `Date` header, in the list
-     * of HTTP headers. Note that the list order is important, and MUST be specified
-     * in the order the HTTP header field-value pairs are concatenated together
-     * during signing.
+     * included when generating the signature for the message.
+     * If specified, it should be a lowercased, quoted list of HTTP header
+     * fields, separated by a single space character. If not specified,
+     * implementations MUST operate as if the field were specified with
+     * a single value, the `Date` header, in the list of HTTP headers. Note
+     * that the list order is important, and MUST be specified in the order
+     * the HTTP header field-value pairs are concatenated together during
+     * signing.
      */
     private final List<String> headers;
 
