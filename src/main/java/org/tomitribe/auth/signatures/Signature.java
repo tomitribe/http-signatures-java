@@ -131,14 +131,12 @@ public class Signature {
     }
 
     private static Algorithm getAlgorithm(String algorithm) {
-        if (algorithm == null)
-            throw new IllegalArgumentException("Algorithm cannot be null");
+        if (algorithm == null) throw new IllegalArgumentException("Algorithm cannot be null");
         return Algorithm.get(algorithm);
     }
 
     private static SigningAlgorithm getSigningAlgorithm(String scheme) {
-        if (scheme == null)
-            throw new IllegalArgumentException("Signing scheme cannot be null");
+        if (scheme == null) throw new IllegalArgumentException("Signing scheme cannot be null");
         return SigningAlgorithm.get(scheme);
     }
 
