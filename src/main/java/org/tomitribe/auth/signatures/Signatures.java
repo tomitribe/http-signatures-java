@@ -24,7 +24,11 @@ import java.util.Map;
 public enum Signatures {
     ;
 
-    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
+    /**
+     * Create a canonicalized string representation of the HTTP request. It is used
+     * as the input to calculate the signature of the HTTP request.
+     */
+    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers, Double signatureValidity) {
         headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());
@@ -33,7 +37,27 @@ public enum Signatures {
             if ("(request-target)".equals(key)) {
                 method = lowercase(method);
                 list.add(Join.join(" ", "(request-target):", method, uri));
-
+            } else if ("(created)".equals(key)) {
+                // The "created" parameter contains the signature's Creation Time.
+                // This parameter is useful when signers are not capable of controlling
+                // the "Date" HTTP Header such as when operating in certain web
+                // browser environments.
+                // Its canonicalized value is an Integer String containing the
+                // signature's Creation Time expressed as the number of seconds since
+                // the Epoch
+                long created = System.currentTimeMillis() / 1000L;
+                list.add(key + ": " + Long.toString(created));
+            } else if ("(expires)".equals(key)) {
+                // The "expires" parameter contains the signature's Expiration Time.
+                // If the signature does not have an Expiration Time, this parameter "MUST"
+                // be omitted.  If not specified, the signature's Expiration Time is
+                // undefined.
+                // Its canonicalized value is a Decimal String containing the
+                // signature's Expiration Time expressed as the number of seconds since
+                // the Epoch.
+                if (signatureValidity == null) throw new MissingArgumentException(key);
+                double expires = (System.currentTimeMillis() / 1000.0) + signatureValidity;
+                list.add(key + ": " + String.valueOf(expires));
             } else {
                 final String value = headers.get(key);
                 if (value == null) throw new MissingRequiredHeaderException(key);
