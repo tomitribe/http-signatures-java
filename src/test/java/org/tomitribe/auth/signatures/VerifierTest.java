@@ -19,7 +19,6 @@ package org.tomitribe.auth.signatures;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.security.Provider;
