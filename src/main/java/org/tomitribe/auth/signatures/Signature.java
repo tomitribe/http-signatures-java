@@ -236,8 +236,8 @@ public class Signature {
     }
 
     /**
-     * Returns the identifier for the HTTP Signature Algorithm, as registered in the
-     * HTTP Signature Algorithms Registry.
+     * Returns the identifier for the HTTP Signature Algorithm, as registered
+     * in the HTTP Signature Algorithms Registry.
      * 
      * @return the identifier for the HTTP Signature Algorithm.
      */
@@ -270,16 +270,13 @@ public class Signature {
     /**
      * Constructs a Signature object by parsing the 'Authorization' header.
      * 
-     * As stated in the HTTP signature specification, the value of the algorithm
-     * parameter in the 'Authorization' header should be set to generic identifier.
-     * The detailed algorithm should be derived from the keyId. Hence it is not
-     * possible to determine the detailed algorithm by inspecting the signature
-     * data.
+     * As stated in the HTTP signature specification, the value of the algorithm parameter in
+     * the 'Authorization' header should be set to generic identifier. The detailed algorithm
+     * should be derived from the keyId. Hence it is not possible to determine the detailed
+     * algorithm by inspecting the signature data.
      * 
-     * @param authorization The value of the HTTP 'Authorization' header containing
-     *                      the signature data.
-     * @param algorithm     The detailed cryptographic algorithm for the HTTP
-     *                      signature.
+     * @param authorization The value of the HTTP 'Authorization' header containing the signature data.
+     * @param algorithm The detailed cryptographic algorithm for the HTTP signature.
      * 
      * @return The Signature object.
      */
