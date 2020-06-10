@@ -94,6 +94,12 @@ public class Signature {
      */
     private final AlgorithmParameterSpec parameterSpec;
 
+    /**
+     * OPTIONAL. The duration of the signature validity. If set, this is
+     * used to calculate the '(expires)' field in the HTTP signature.
+     */
+    private Double signatureValidity;
+
     private static final Pattern RFC_2617_PARAM = Pattern.compile("(\\w+)=\"([^\"]*)\"");
 
     /**
@@ -156,6 +162,23 @@ public class Signature {
         } else {
             this.headers = Collections.unmodifiableList(lowercase(headers));
         }
+    }
+
+    /**
+     * Sets the signature validity, in seconds.
+     */
+    public Signature signatureValidity(Double signatureValidity) {
+        this.signatureValidity = signatureValidity;
+        return this;
+    }
+
+    /**
+     * Returns the value of the signature validity, in seconds.
+     * 
+     * @return the value of the signature validity, in seconds.
+     */
+    public Double getSignatureValidity() {
+        return signatureValidity;
     }
 
     private List<String> lowercase(List<String> headers) {
