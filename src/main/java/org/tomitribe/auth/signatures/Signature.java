@@ -143,22 +143,23 @@ public class Signature {
     }
 
     public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
-            final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, signature, headers);
     }
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
-            final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
         if (algorithm == null) {
             throw new IllegalArgumentException("algorithm is required.");
         }
-        if (signingAlgorithm != null && signingAlgorithm.getSupportedAlgorithms() != null
-                && !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
-            throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName()
-                    + " is not compatible with " + algorithm.getPortableName());
+        if (signingAlgorithm != null &&
+            signingAlgorithm.getSupportedAlgorithms() != null &&
+            !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
+            throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName() +
+                                                " is not compatible with " + algorithm.getPortableName());
         }
 
         this.keyId = keyId;
