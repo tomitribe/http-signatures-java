@@ -77,10 +77,10 @@ public class Signature {
     private final String signature;
 
     /**
-     * OPTIONAL. The `headers` parameter is used to specify the list of
+     * OPTIONAL.  The `headers` parameter is used to specify the list of
      * HTTP headers included when generating the signature for the message.
      * If specified, it should be a lowercased, quoted list of HTTP header
-     * fields, separated by a single space character. If not specified,
+     * fields, separated by a single space character.  If not specified,
      * implementations MUST operate as if the field were specified with a
      * single value, the `Date` header, in the list of HTTP headers.  Note
      * that the list order is important, and MUST be specified in the order
@@ -91,7 +91,7 @@ public class Signature {
 
     /**
      * OPTIONAL.  The `parameterSpec` is used to specify the cryptographic
-     * parameters. Some cryptographic algorithm such as RSASSA-PSS
+     * parameters. Some cryptographic algorithm such as RSASSA-PSS 
      * require parameters.
      */
     private final AlgorithmParameterSpec parameterSpec;
