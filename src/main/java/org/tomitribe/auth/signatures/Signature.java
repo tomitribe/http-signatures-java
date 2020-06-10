@@ -31,37 +31,37 @@ import java.text.ParseException;
 public class Signature {
 
     /**
-     * REQUIRED. The `keyId` field is an opaque string that the server can
+     * REQUIRED.  The `keyId` field is an opaque string that the server can
      * use to look up the component they need to validate the signature. It
      * could be an SSH key fingerprint, a URL to machine-readable key data,
-     * an LDAP DN, etc. Management of keys and assignment of `keyId` is out
+     * an LDAP DN, etc.  Management of keys and assignment of `keyId` is out
      * of scope for this document.
      */
     private final String keyId;
 
     /**
-     * RECOMMENDED. The `signingAlgorithm` parameter is used to specify the digital
+     * RECOMMENDED.  The `signingAlgorithm` parameter is used to specify the digital
      * signature algorithm to use when generating the signature.  Valid
      * values for this parameter can be found in the Signature Algorithms
      * registry located at http://www.iana.org/assignments/signature-
      * algorithms and MUST NOT be marked "deprecated".
      * 
      * Verifiers MUST determine the signature's Algorithm from the keyId parameter
-     * rather than from algorithm. If algorithm is provided and differs from or is
-     * incompatible with the algorithm or key material identified by keyId (for
-     * example, algorithm has a value of rsa-sha256 but keyId identifies an EdDSA
-     * key), then implementations MUST produce an error.
+     * rather than from algorithm. If algorithm is provided and differs from or
+     * is incompatible with the algorithm or key material identified by keyId
+     * (for example, algorithm has a value of rsa-sha256 but keyId identifies
+     * an EdDSA key), then implementations MUST produce an error.
      * 
      * https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
      */
     private final SigningAlgorithm signingAlgorithm;
 
     /**
-     * REQUIRED. The `algorithm` parameter is used to specify the digital signature
-     * algorithm to use when generating the signature. Valid values for this
-     * parameter can be found in the Signature Algorithms registry located at
-     * http://www.iana.org/assignments/signature- algorithms and MUST NOT be marked
-     * "deprecated".
+     * REQUIRED.  The `algorithm` parameter is used to specify the digital
+     * signature algorithm to use when generating the signature.  Valid
+     * values for this parameter can be found in the Signature Algorithms
+     * registry located at http://www.iana.org/assignments/signature-
+     * algorithms and MUST NOT be marked "deprecated".
      */
     private final Algorithm algorithm;
 
@@ -88,9 +88,9 @@ public class Signature {
     private final List<String> headers;
 
     /**
-     * OPTIONAL. The `parameterSpec` is used to specify the cryptographic
-     * parameters. Some cryptographic algorithm such as RSASSA-PSS require
-     * parameters.
+     * OPTIONAL.  The `parameterSpec` is used to specify the cryptographic
+     * parameters. Some cryptographic algorithm such as RSASSA-PSS
+     * require parameters.
      */
     private final AlgorithmParameterSpec parameterSpec;
 
