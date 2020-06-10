@@ -107,6 +107,11 @@ public class Signature {
      */
     private Double signatureExpirationTime;
 
+    /**
+     * Regular expression pattern for fields present in the Authorization field.
+     * Fields value may be double-quoted strings, e.g. algorithm="hs2019"
+     * Some fields may be numerical values without double-quotes, e.g. created=123456
+     */
     private static final Pattern RFC_2617_PARAM = Pattern
             .compile("(?<key>\\w+)=((\"(?<stringValue>[^\"]*)\")|(?<numberValue>\\d+\\.?\\d*))");
 
