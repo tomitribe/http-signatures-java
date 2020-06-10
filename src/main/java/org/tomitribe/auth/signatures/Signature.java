@@ -121,14 +121,12 @@ public class Signature {
      * 
      * @param keyId An opaque string that the server can use to look up the component they need to validate the signature.
      * @param signingAlgorithm An identifier for the HTTP Signature algorithm.
-     *  This should be "hs2019" except for legacy applications that use an older version of the draft HTTP signature
-     *                         specification.
+     *  This should be "hs2019" except for legacy applications that use an older version of the draft HTTP signature specification.
      * @param algorithm The detailed algorithm used to sign the message.
      * @param parameterSpec optional cryptographic parameters for the signature.
      * @param headers The list of HTTP headers that will be used in the signature.
      */
-    public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
-            final AlgorithmParameterSpec parameterSpec, final List<String> headers) {
+    public Signature(final String keyId, final String signingAlgorithm, final String algorithm, final AlgorithmParameterSpec parameterSpec, final List<String> headers) {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, null, headers);
     }
 
