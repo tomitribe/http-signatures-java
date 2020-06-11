@@ -98,10 +98,9 @@ public class Signer {
 
         final String signedAndEncodedString = new String(encoded, "UTF-8");
 
-        Signature s = new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
+        return new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
                              signature.getAlgorithm(), signature.getParameterSpec(),
                              signedAndEncodedString, signature.getHeaders(), null, created, expires);
-        return s;
     }
 
     /**

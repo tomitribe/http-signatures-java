@@ -513,13 +513,12 @@ public class Signature {
 
     @Override
     public String toString() {
-        String s = "Signature " +
+        return "Signature " +
                 "keyId=\"" + keyId + '\"' +
                 (signatureCreatedTime != null ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
                 (signatureExpiresTime != null ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
                 ",algorithm=\"" + algorithm + '\"' +
                 ",headers=\"" + Join.join(" ", headers) + '\"' +
                 ",signature=\"" + signature + '\"';
-        return s;
     }
 }
