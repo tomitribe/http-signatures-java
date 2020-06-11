@@ -103,6 +103,9 @@ public class Signature {
 
     /**
      * OPTIONAL. The configurable signature's maximum validation duration, in milliseconds.
+     * This field is applicable when the signed headers include '(expires)'.
+     * In that case, the value of the '(expires)' field is calculated by adding
+     * maxSignatureValidityDuration to the timestamp of the signature creation time.
      * 
      * This field is used to derive the signature expiration time when a cryptographic signature
      * is generated.
