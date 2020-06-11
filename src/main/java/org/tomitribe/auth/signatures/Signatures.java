@@ -27,8 +27,29 @@ public enum Signatures {
     /**
      * Create a canonicalized string representation of the HTTP request. It is used
      * as the input to calculate the signature of the HTTP request.
+     * 
+     * @param required The list of headers that should be included in the HTTP signature.
+     * @param method The HTTP method.
+     * @param uri The HTTP request URI.
+     * @param headers A map of header names to header values.
      */
-    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers, Double signatureValidity) {
+    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
+        return createSigningString(required, method, uri, headers);
+    }
+
+    /**
+     * Create a canonicalized string representation of the HTTP request. It is used
+     * as the input to calculate the signature of the HTTP request.
+     * 
+     * @param required The list of headers that should be included in the HTTP signature.
+     * @param method The HTTP method.
+     * @param uri The HTTP request URI.
+     * @param headers A map of header names to header values.
+     * @param signatureCreationTime The signature creation time in milliseconds since the epoch.
+     * @param signatureExpiryTime The signature expiration time in milliseconds since the epoch.
+     */
+    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers,
+            Long signatureCreationTime, Long signatureExpiryTime) {
         headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());
@@ -45,8 +66,10 @@ public enum Signatures {
                 // Its canonicalized value is an Integer String containing the
                 // signature's Creation Time expressed as the number of seconds since
                 // the Epoch
-                long created = System.currentTimeMillis() / 1000L;
-                list.add(key + ": " + Long.toString(created));
+                if (signatureCreationTime == null) {
+                    throw new InvalidCreatedFieldException("(created) field requested but signature creation time is not set");
+                }
+                list.add(key + ": " + Long.toString(signatureCreationTime / 1000L));
             } else if ("(expires)".equals(key)) {
                 // The "expires" parameter contains the signature's Expiration Time.
                 // If the signature does not have an Expiration Time, this parameter "MUST"
@@ -55,9 +78,11 @@ public enum Signatures {
                 // Its canonicalized value is a Decimal String containing the
                 // signature's Expiration Time expressed as the number of seconds since
                 // the Epoch.
-                if (signatureValidity == null) throw new MissingArgumentException(key);
-                double expires = (System.currentTimeMillis() / 1000.0) + signatureValidity;
-                list.add(key + ": " + String.valueOf(expires));
+                if (signatureExpiryTime == null) {
+                    throw new InvalidExpiresFieldException("(expires) field requested but signature expiration time is not set");
+                }
+                double expires = signatureExpiryTime / 1000.0;
+                list.add(key + ": " + String.format("%.3f", expires));
             } else {
                 final String value = headers.get(key);
                 if (value == null) throw new MissingRequiredHeaderException(key);

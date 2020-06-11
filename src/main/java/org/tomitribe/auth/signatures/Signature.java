@@ -19,6 +19,7 @@ package org.tomitribe.auth.signatures;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,15 +98,28 @@ public class Signature {
     private final AlgorithmParameterSpec parameterSpec;
 
     /**
-     * OPTIONAL. The signature's Creation Time, in seconds since the epoch.
+     * OPTIONAL. The configurable signature's maximum validation duration, in milliseconds.
+     * 
+     * This field is used to derive the signature expiration time when a cryptographic signature
+     * is generated.
      */
-    private Long signatureCreationTime;
+    private final Long maxSignatureValidityDuration;
 
     /**
-     * OPTIONAL. The signature's Expiration Time, as a decimal value in seconds
-     * since the epoch.
+     * The signature's Creation Time, in milliseconds since the epoch.
+     * 
+     * This field is set at the time the cryptographic signature is generated, or when
+     * the 'Authorization' header is parsed.
      */
-    private Double signatureExpirationTime;
+    private Long signatureCreatedTime;
+
+    /**
+     * The signature's Expiration Time, in milliseconds since the epoch.
+     * 
+     * This field is set at the time the cryptographic signature is generated, or when
+     * the 'Authorization' header is parsed.
+     */
+    private Long signatureExpiresTime;
 
     /**
      * Regular expression pattern for fields present in the Authorization field.
@@ -119,7 +133,7 @@ public class Signature {
      * The maximum time skew between the client and the server.
      * This is used to validate the (created) and (expires) fields in the HTTP signature.
      */
-    public static long maxTimeSkewInSeconds = 30;
+    public static long maxTimeSkewInMilliseconds = 30 * 1000L;
 
     /**
      * Construct a signature configuration instance with the specified keyId, algorithm and HTTP headers.
@@ -152,6 +166,19 @@ public class Signature {
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
                         final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+        this(keyId, signingAlgorithm, algorithm, parameterSpec, signature, headers, null);
+    }
+
+    public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
+                        final AlgorithmParameterSpec parameterSpec, final String signature,
+                        final List<String> headers, final Long maxSignatureValidityDuration) {
+        this(keyId, signingAlgorithm, algorithm, parameterSpec, signature, headers, maxSignatureValidityDuration, null, null);
+    }
+
+    public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
+                        final AlgorithmParameterSpec parameterSpec, final String signature,
+                        final List<String> headers, final Long maxSignatureValidityDuration,
+                        Long signatureCreatedTime, Long signatureExpiresTime) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
@@ -168,6 +195,12 @@ public class Signature {
         this.keyId = keyId;
         this.signingAlgorithm = signingAlgorithm;
         this.algorithm = algorithm;
+        if (maxSignatureValidityDuration != null && maxSignatureValidityDuration <=0) {
+            throw new IllegalArgumentException("Signature max validity must be a positive number");
+        }
+        this.maxSignatureValidityDuration = maxSignatureValidityDuration;
+        this.signatureCreatedTime = signatureCreatedTime;
+        this.signatureExpiresTime = signatureExpiresTime;
 
         // this is the only one that can be null cause the object
         // can be used as a template/specification
@@ -184,37 +217,50 @@ public class Signature {
     }
 
     /**
-     * Sets the signature creation time, in seconds since the epoch.
-     */
-    public Signature signatureCreationTime(Long signatureCreationTime) {
-        this.signatureCreationTime = signatureCreationTime;
-        return this;
-    }
-
-    /**
-     * Returns the signature creation time, in seconds since the epoch.
+     * Returns the signature creation time.
      * 
-     * @return the signature creation time, in seconds since the epoch.
+     * @return the signature creation time.
      */
-    public Long getSignatureCreationTime() {
-        return signatureCreationTime;
+    public Date getSignatureCreation() {
+        if (signatureCreatedTime == null) return null;
+        return new Date(signatureCreatedTime);
     }
 
     /**
-     * Sets the signature expiration time, in seconds since the epoch.
-     */
-    public Signature signatureExpirationTime(Double signatureExpirationTime) {
-        this.signatureExpirationTime = signatureExpirationTime;
-        return this;
-    }
-
-    /**
-     * Returns the signature expiration time, in seconds since the epoch.
+     * Returns the signature creation time in milliseconds since the epoch.
      * 
-     * @return the signature expiration time, in seconds since the epoch.
+     * @return the signature creation time in milliseconds since the epoch.
      */
-    public Double getSignatureExpirationTime() {
-        return signatureExpirationTime;
+    public Long getSignatureCreationTimeMilliseconds() {
+        return signatureCreatedTime;
+    }
+
+    /**
+     * Returns the signature max validity duration, in milliseconds.
+     * 
+     * @return the signature max validity duration, in milliseconds.
+     */
+    public Long getSignatureMaxValidityMilliseconds() {
+        return maxSignatureValidityDuration;
+    }
+
+    /**
+     * Returns the signature expiration time.
+     * 
+     * @return the signature expiration time.
+     */
+    public Date getSignatureExpiration() {
+        if (signatureExpiresTime == null) return null;
+        return new Date(signatureExpiresTime);
+    }
+
+    /**
+     * Returns the signature expiration time in milliseconds since the epoch.
+     * 
+     * @return the signature expiration time in milliseconds since the epoch.
+     */
+    public Long getSignatureExpirationTimeMilliseconds() {
+        return signatureExpiresTime;
     }
 
     private List<String> lowercase(List<String> headers) {
@@ -268,6 +314,23 @@ public class Signature {
 
     public List<String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Verify the signature is valid with regards to the (created) and (expires) fields.
+     * 
+     * When the '(created)' field is present in the HTTP signature, the '(created)' field
+     * represents the date when the signature has been created.
+     * When the '(expires)' field is present in the HTTP signature, the '(expires)' field
+     * represents the date when the signature expires.
+     */
+    public void verifySignatureValidityDates() {
+        if (signatureCreatedTime != null && signatureCreatedTime > System.currentTimeMillis() + maxTimeSkewInMilliseconds) {
+            throw new InvalidCreatedFieldException("Signature is not valid yet");
+        }
+        if (signatureExpiresTime != null && signatureExpiresTime < System.currentTimeMillis()) {
+            throw new InvalidExpiresFieldException("Signature has expired");
+        }
     }
 
     /**
@@ -380,27 +443,21 @@ public class Signature {
             }
             if (signature == null) throw new MissingSignatureException();
 
-            Long created = null;
+            Long created = null; // The signature creation time, in milliseconds since the epoch.
             fv = map.get("created");
             if (fv != null) {
                 if (!fv.isInteger()) {
                     throw new InvalidCreatedFieldException("Field must be an integer value");
                 }
-                created = fv.getValueAsLong();
-                if (created > (System.currentTimeMillis() / 1000L) + maxTimeSkewInSeconds) {
-                    throw new InvalidCreatedFieldException("Signature is not valid yet");
-                }
+                created = fv.getValueAsLong() * 1000L;
             }
-            Double expires = null;
+            Long expires = null; // The signature expiration time, in milliseconds since the epoch.
             fv = map.get("expires");
             if (fv != null) {
                 if (!fv.isNumber()) {
                     throw new InvalidExpiresFieldException("Field must be a number");
                 }
-                expires = fv.getValueAsDouble();
-                if (expires < (System.currentTimeMillis() / 1000L)) {
-                    throw new InvalidExpiresFieldException("Signature has expired");
-                }
+                expires = (long)(fv.getValueAsDouble() * 1000L);
             }
             SigningAlgorithm parsedSigningAlgorithm = null;
             try {
@@ -428,13 +485,8 @@ public class Signature {
                 parsedAlgorithm = algorithm;
             }
 
-            Signature s = new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers);
-            if (created != null) {
-                s = s.signatureCreationTime(created);
-            }
-            if (expires != null) {
-                s = s.signatureExpirationTime(expires);
-            }
+            Signature s = new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers, null, created, expires);
+            s.verifySignatureValidityDates();
             return s;
 
         } catch (AuthenticationException e) {
@@ -457,10 +509,13 @@ public class Signature {
 
     @Override
     public String toString() {
-        return "Signature " +
+        String s = "Signature " +
                 "keyId=\"" + keyId + '\"' +
+                (signatureCreatedTime != null ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
+                (signatureExpiresTime != null ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
                 ",algorithm=\"" + algorithm + '\"' +
                 ",headers=\"" + Join.join(" ", headers) + '\"' +
                 ",signature=\"" + signature + '\"';
+        return s;
     }
 }

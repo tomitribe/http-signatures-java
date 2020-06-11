@@ -85,8 +85,12 @@ public class Signer {
     }
 
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
-
-        final String signingString = createSigningString(method, uri, headers);
+        Long created = System.currentTimeMillis();
+        Long expires = signature.getSignatureMaxValidityMilliseconds();
+        if (expires != null) {
+            expires += created;
+        }
+        final String signingString = createSigningString(method, uri, headers, created, expires);
 
         final byte[] binarySignature = sign.sign(signingString.getBytes("UTF-8"));
 
@@ -94,13 +98,40 @@ public class Signer {
 
         final String signedAndEncodedString = new String(encoded, "UTF-8");
 
-        return new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
+        Signature s = new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
                              signature.getAlgorithm(), signature.getParameterSpec(),
-                             signedAndEncodedString, signature.getHeaders());
+                             signedAndEncodedString, signature.getHeaders(), null, created, expires);
+        return s;
     }
 
+    /**
+     * Create and return the string which is used as input for the cryptographic signature.
+     * 
+     * @param method The HTTP method.
+     * @param uri The URI path and query parameters.
+     * @param headers The HTTP headers.
+     * @param created The time when the signature is created.
+     * @param expires The time when the signature expires.
+     * @return The signing string.
+     * @throws IOException when an exception occurs while creating the signing string.
+     */
+    public String createSigningString(final String method, final String uri, final Map<String, String> headers,
+            Long created, Long expires) throws IOException {
+        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, created, expires);
+    }
+
+    /**
+     * Create and return the string which is used as input for the cryptographic signature.
+     * 
+     * @param method The HTTP method.
+     * @param uri The URI path and query parameters.
+     * @param headers The HTTP headers.
+     * @return The signing string.
+     * @throws IOException when an exception occurs while creating the signing string.
+     */
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, signature.getSignatureExpirationTime());
+        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers,
+            signature.getSignatureCreationTimeMilliseconds(), signature.getSignatureExpirationTimeMilliseconds());
     }
 
     private interface Sign {

@@ -25,6 +25,7 @@ import java.security.Provider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class VerifierTest extends Assert {
 
@@ -113,6 +114,66 @@ public class VerifierTest extends Assert {
     public void testParseAuthorizationHs2019MissingAlgorithm() throws Exception {
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
         Signature.fromString(authorization, null);
+    }
+
+    @Test
+    public void testVerifyAndValidateDates() throws Exception {
+        // Create a signature with a short validation duration.
+        // If the signature is verified immediately, the validation should pass.
+        // If the signature is verified after the expiration time, the validation should fail.
+        long maxValidity = 1 * 1000L;
+
+        final Signature inputSignature = new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, Algorithm.HMAC_SHA256, null, null,
+            Arrays.asList("content-length", "host", "date", "(request-target)", "(created)", "(expires)"),
+            maxValidity, System.currentTimeMillis(), System.currentTimeMillis() + maxValidity);
+
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, inputSignature);
+
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+
+        // Assert the Signing String
+        final String expectedSigningStringRegex =
+            "content-length: 18\n" +
+            "host: example.org\n" +
+            "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
+            "\\(request-target\\): get \\/foo\\/Bar\n" +
+            "\\(created\\): [\\d]+\n" +
+            "\\(expires\\): [\\d]+\\.?[\\d]*";
+        Pattern regex = Pattern.compile(expectedSigningStringRegex, Pattern.MULTILINE);
+        final String signingString = signer.createSigningString("GET", "/foo/Bar", headers);
+        assertTrue(regex.matcher(signingString).find());
+
+        // Assert the signature
+        Signature signature = signer.sign("GET", "/foo/Bar", headers);
+
+        String authorization = signature.toString();
+        assertTrue(authorization.contains("(created)"));
+        assertTrue(authorization.contains("(expires)"));
+        assertTrue(authorization.contains("created="));
+        assertTrue(authorization.contains("expires="));
+
+        // Assert the signature verification.
+        final Signature parsedSignature = Signature.fromString(authorization, null);
+        assertNotNull(parsedSignature.getSignatureCreationTimeMilliseconds());
+        assertNotNull(parsedSignature.getSignatureExpirationTimeMilliseconds());
+        assertNotNull(parsedSignature.getSignatureCreation());
+        assertNotNull(parsedSignature.getSignatureExpiration());
+
+        final Verifier verifier = new Verifier(key, parsedSignature);
+        boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+        assertTrue(verifies);
+
+        Thread.sleep(maxValidity);
+        verifies = verifier.verify("GET", "/foo/Bar", headers);
+        assertFalse(verifies);
     }
 
     /**

@@ -83,14 +83,20 @@ public class Verifier {
     }
 
     public boolean verify(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, SignatureException {
-
+        try {
+            signature.verifySignatureValidityDates();
+        } catch (Exception e) {
+            return false;
+        }
         final String signingString = createSigningString(method, uri, headers);
 
         return verify.verify(signingString.getBytes());
     }
 
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, signature.getSignatureExpirationTime());
+        return Signatures.createSigningString(signature.getHeaders(), method, uri, headers,
+            signature.getSignatureCreationTimeMilliseconds(),
+            signature.getSignatureExpirationTimeMilliseconds());
     }
 
     private interface Verify {

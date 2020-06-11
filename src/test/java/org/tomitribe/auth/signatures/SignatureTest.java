@@ -195,6 +195,40 @@ public class SignatureTest {
         Signature.fromString(authorization, null);
     }
     
+    /**
+     * Invalid max validity, it cannot be a negative value.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void maxValidityNegative() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), -1L);
+    }
+
+    /**
+     * Invalid max validity, it cannot be zero.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void maxValidityZeroValue() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 0L);
+    }
+
+    /**
+     * Value of max validity is valid.
+     */
+    @Test
+    public void maxValidity() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 123L);
+    }
+
+
     @Test
     public void nullHeaders() {
         final Signature signature = new Signature("somekey", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList());
@@ -306,12 +340,12 @@ public class SignatureTest {
      */
     @Test
     public void signatureCreatedAndExpiresFields() throws Exception {
-        long created = System.currentTimeMillis() / 1000L;
-        double expires = System.currentTimeMillis() / 1000.0 + 3600;
+        long created = (System.currentTimeMillis() / 1000L) * 1000L;
+        long expires = System.currentTimeMillis() + 3600L * 1000L;
         String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=%d,expires=%f," +
                 "headers=\"(request-target) (created) (expires) one two\"" +
-                ",signature=\"Base64(HMAC-SHA256(signing string))\"", created, expires);
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"", created / 1000L, expires / 1000.0);
 
         final Signature signature = Signature.fromString(authorization, null);
 
@@ -324,8 +358,9 @@ public class SignatureTest {
                 "(expires)\n" +
                 "one\n" +
                 "two", join("\n", signature.getHeaders()));
-        assertEquals((Long)created, signature.getSignatureCreationTime());
-        assertEquals((Double)expires, signature.getSignatureExpirationTime());
+        assertEquals((Long)created, signature.getSignatureCreationTimeMilliseconds());
+        assertEquals((Long)expires, signature.getSignatureExpirationTimeMilliseconds());
+        signature.verifySignatureValidityDates();
     }
 
     @Test
