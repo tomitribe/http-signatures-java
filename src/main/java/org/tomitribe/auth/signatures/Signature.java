@@ -74,6 +74,10 @@ public class Signature {
      * signed with the key associated with `keyId` and the algorithm
      * corresponding to `algorithm`.  The `signature` parameter is then set
      * to the base 64 encoding of the signature.
+     * 
+     * Signing: this field is calculated from the input data.
+     * Verification: this field is parsed from the signature field in the
+     * Authorization header.
      */
     private final String signature;
 
