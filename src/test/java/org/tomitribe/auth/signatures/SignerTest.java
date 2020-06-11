@@ -20,7 +20,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayInputStream;
 import java.security.Key;
+import java.security.PrivateKey;
 import java.security.Provider;
 import java.util.HashMap;
 import java.util.Map;
@@ -246,8 +248,91 @@ public class SignerTest extends Assert {
         }
     }
 
+    /**
+     * Test the 'algorithm' field in the 'Authorization' header has the expected value.
+     * 
+     * @throws Exception when a unit test fails.
+     */
     @Test
-    public void testCreateSingingString() throws Exception {
+    public void testAlgorithFieldInAuthorizationHeader() throws Exception {
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+        
+        final String ecPrivateKeyPem =
+        "-----BEGIN EC PRIVATE KEY-----\n" +
+        "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCAwMH6qcFB3MyllyHKe\n" +
+        "4mqAFWS2gbD4XWzKtCnSmj2b1A==\n" +
+        "-----END EC PRIVATE KEY-----\n";
+
+        final String rsaPrivateKeyPem =
+            "-----BEGIN RSA PRIVATE KEY-----\n" +
+            "MIICXgIBAAKBgQDCFENGw33yGihy92pDjZQhl0C36rPJj+CvfSC8+q28hxA161QF\n" +
+            "NUd13wuCTUcq0Qd2qsBe/2hFyc2DCJJg0h1L78+6Z4UMR7EOcpfdUE9Hf3m/hs+F\n" +
+            "UR45uBJeDK1HSFHD8bHKD6kv8FPGfJTotc+2xjJwoYi+1hqp1fIekaxsyQIDAQAB\n" +
+            "AoGBAJR8ZkCUvx5kzv+utdl7T5MnordT1TvoXXJGXK7ZZ+UuvMNUCdN2QPc4sBiA\n" +
+            "QWvLw1cSKt5DsKZ8UETpYPy8pPYnnDEz2dDYiaew9+xEpubyeW2oH4Zx71wqBtOK\n" +
+            "kqwrXa/pzdpiucRRjk6vE6YY7EBBs/g7uanVpGibOVAEsqH1AkEA7DkjVH28WDUg\n" +
+            "f1nqvfn2Kj6CT7nIcE3jGJsZZ7zlZmBmHFDONMLUrXR/Zm3pR5m0tCmBqa5RK95u\n" +
+            "412jt1dPIwJBANJT3v8pnkth48bQo/fKel6uEYyboRtA5/uHuHkZ6FQF7OUkGogc\n" +
+            "mSJluOdc5t6hI1VsLn0QZEjQZMEOWr+wKSMCQQCC4kXJEsHAve77oP6HtG/IiEn7\n" +
+            "kpyUXRNvFsDE0czpJJBvL/aRFUJxuRK91jhjC68sA7NsKMGg5OXb5I5Jj36xAkEA\n" +
+            "gIT7aFOYBFwGgQAQkWNKLvySgKbAZRTeLBacpHMuQdl1DfdntvAyqpAZ0lY0RKmW\n" +
+            "G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/2ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI\n" +
+            "7U1yQXnTAEFYM560yJlzUpOb1V4cScGd365tiSMvxLOvTA==\n" +
+            "-----END RSA PRIVATE KEY-----\n";
+
+        {
+            // Create a signature with the RSA SHA-256 algorithm.
+            // The signing algorithm is set to RSA_SHA256, hence the value of the
+            // 'algorithm' field in the Authorization header must be 'rsa-sha256'.
+            final Signature signature = new Signature("my-key",
+            SigningAlgorithm.RSA_SHA256,
+            Algorithm.RSA_SHA256, null, null,
+            Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
+            final Signer signer = new Signer(privateKey, signature);
+            Signature s = signer.sign("POST", "", headers);
+            assertTrue(s.toString().contains("algorithm=\"rsa-sha256\""));
+        }    
+        {
+            // Create a signature with the RSA SHA-256 algorithm.
+            // But this time the signing algorithm is set to HS2019, hence the value of the
+            // 'algorithm' field in the Authorization header must be 'hs2019'.
+            // The actual value of the algorithm is not serialized on the wire, the server
+            // must derive the value from the keyId (out-of-band).
+            final Signature signature = new Signature("my-key",
+            SigningAlgorithm.HS2019,
+            Algorithm.RSA_SHA256, null, null,
+            Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
+            final Signer signer = new Signer(privateKey, signature);
+            Signature s = signer.sign("POST", "", headers);
+            assertTrue(s.toString().contains("algorithm=\"hs2019\""));
+        }    
+        {
+            // Create a signature with the ECDSA SHA256 algorithm.
+            // The signing algorithm is set to HS2019, hence the value of the
+            // 'algorithm' field in the Authorization header must be 'hs2019'.
+            // The actual value of the algorithm is not serialized on the wire, the server
+            // must derive the value from the keyId (out-of-band).
+            final Signature signature = new Signature("my-key",
+                SigningAlgorithm.HS2019,
+                Algorithm.ECDSA_SHA256, null, null,
+                Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(ecPrivateKeyPem.getBytes()));
+            final Signer signer = new Signer(privateKey, signature);
+            Signature s = signer.sign("POST", "", headers);
+            assertTrue(s.toString().contains("algorithm=\"hs2019\""));
+        }
+    }
+
+    @Test
+    public void testCreateSigningString() throws Exception {
         {
             final String method = "POST";
             final String uri = "/foo";

@@ -102,4 +102,12 @@ public class AlgorithmTest extends Assert {
     public void unsupportedAlgorithmException() throws Exception {
         Algorithm.get("HmacMD256");
     }
+
+    @Test
+    public void getSigningAlgorithm() throws Exception {
+        for (final SigningAlgorithm algorithm : SigningAlgorithm.values()) {
+            SigningAlgorithm s = SigningAlgorithm.get(algorithm.getAlgorithmName());
+            assertEquals(algorithm, s);
+        }
+    }    
 }
