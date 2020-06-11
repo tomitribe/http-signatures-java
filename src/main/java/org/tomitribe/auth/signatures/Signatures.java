@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public enum Signatures {
     ;
@@ -69,7 +70,7 @@ public enum Signatures {
                 if (signatureCreationTime == null) {
                     throw new InvalidCreatedFieldException("(created) field requested but signature creation time is not set");
                 }
-                list.add(key + ": " + Long.toString(signatureCreationTime / 1000L));
+                list.add(key + ": " + Long.toString(TimeUnit.MILLISECONDS.toSeconds(signatureCreationTime)));
             } else if ("(expires)".equals(key)) {
                 // The "expires" parameter contains the signature's Expiration Time.
                 // If the signature does not have an Expiration Time, this parameter "MUST"
