@@ -421,50 +421,50 @@ public class Signature {
             }
 
             final List<String> headers = new ArrayList<String>();
-            FieldValue fv = map.get("headers");
-            if (fv != null) {
-                if (!fv.isString()) {
+            FieldValue fieldValue = map.get("headers");
+            if (fieldValue != null) {
+                if (!fieldValue.isString()) {
                     throw new IllegalArgumentException("headers field must be a double-quoted string");
                 }
-                Collections.addAll(headers, fv.getValueAsString().toLowerCase().split(" +"));
+                Collections.addAll(headers, fieldValue.getValueAsString().toLowerCase().split(" +"));
             }
 
             String keyid = null;
-            fv = map.get("keyid");
-            if (fv != null && fv.isString()) {
-                keyid = fv.getValueAsString();
+            fieldValue = map.get("keyid");
+            if (fieldValue != null && fieldValue.isString()) {
+                keyid = fieldValue.getValueAsString();
             }
             if (keyid == null) throw new MissingKeyIdException();
 
             String algorithmField = null;
-            fv = map.get("algorithm");
-            if (fv != null && fv.isString()) {
-                algorithmField = fv.getValueAsString();
+            fieldValue = map.get("algorithm");
+            if (fieldValue != null && fieldValue.isString()) {
+                algorithmField = fieldValue.getValueAsString();
             }
             if (algorithmField == null) throw new MissingAlgorithmException();
 
             String signature = null;
-            fv = map.get("signature");
-            if (fv != null && fv.isString()) {
-                signature = fv.getValueAsString();
+            fieldValue = map.get("signature");
+            if (fieldValue != null && fieldValue.isString()) {
+                signature = fieldValue.getValueAsString();
             }
             if (signature == null) throw new MissingSignatureException();
 
             Long created = null; // The signature creation time, in milliseconds since the epoch.
-            fv = map.get("created");
-            if (fv != null) {
-                if (!fv.isInteger()) {
+            fieldValue = map.get("created");
+            if (fieldValue != null) {
+                if (!fieldValue.isInteger()) {
                     throw new InvalidCreatedFieldException("Field must be an integer value");
                 }
-                created = fv.getValueAsLong() * 1000L;
+                created = fieldValue.getValueAsLong() * 1000L;
             }
             Long expires = null; // The signature expiration time, in milliseconds since the epoch.
-            fv = map.get("expires");
-            if (fv != null) {
-                if (!fv.isNumber()) {
+            fieldValue = map.get("expires");
+            if (fieldValue != null) {
+                if (!fieldValue.isNumber()) {
                     throw new InvalidExpiresFieldException("Field must be a number");
                 }
-                expires = (long)(fv.getValueAsDouble() * 1000L);
+                expires = (long)(fieldValue.getValueAsDouble() * 1000L);
             }
             SigningAlgorithm parsedSigningAlgorithm = null;
             try {
