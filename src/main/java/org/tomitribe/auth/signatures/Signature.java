@@ -492,7 +492,7 @@ public class Signature {
                 parsedAlgorithm = algorithm;
             }
 
-            Signature s = new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers, null, created, expires);
+            final Signature s = new Signature(keyid, parsedSigningAlgorithm, parsedAlgorithm, null, signature, headers, null, created, expires);
             s.verifySignatureValidityDates();
             return s;
 
