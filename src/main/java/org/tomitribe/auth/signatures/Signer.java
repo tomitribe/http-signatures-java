@@ -85,7 +85,7 @@ public class Signer {
     }
 
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        Long created = System.currentTimeMillis();
+        final Long created = System.currentTimeMillis();
         Long expires = signature.getSignatureMaxValidityMilliseconds();
         if (expires != null) {
             expires += created;

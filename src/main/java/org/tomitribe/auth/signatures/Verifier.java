@@ -83,11 +83,7 @@ public class Verifier {
     }
 
     public boolean verify(final String method, final String uri, final Map<String, String> headers) throws IOException, NoSuchAlgorithmException, SignatureException {
-        try {
-            signature.verifySignatureValidityDates();
-        } catch (Exception e) {
-            return false;
-        }
+        signature.verifySignatureValidityDates();
         final String signingString = createSigningString(method, uri, headers);
 
         return verify.verify(signingString.getBytes());

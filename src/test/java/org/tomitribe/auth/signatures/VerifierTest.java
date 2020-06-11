@@ -171,9 +171,13 @@ public class VerifierTest extends Assert {
         boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
         assertTrue(verifies);
 
+        // Sleep a bit, this will cause the signature to expire, then verify
+        // the signature again, this time it should fail.
         Thread.sleep(maxValidity);
-        verifies = verifier.verify("GET", "/foo/Bar", headers);
-        assertFalse(verifies);
+        Exception exception = assertThrows(InvalidExpiresFieldException.class, () -> {
+            verifier.verify("GET", "/foo/Bar", headers);
+        });
+        assertEquals("Signature has expired", exception.getMessage());
     }
 
     /**
