@@ -161,7 +161,7 @@ public class VerifierTest extends Assert {
         assertTrue(authorization.contains("expires="));
 
         // Assert the signature verification.
-        final Signature parsedSignature = Signature.fromString(authorization, null);
+        final Signature parsedSignature = Signature.fromString(authorization, Algorithm.HMAC_SHA256);
         assertNotNull(parsedSignature.getSignatureCreationTimeMilliseconds());
         assertNotNull(parsedSignature.getSignatureExpirationTimeMilliseconds());
         assertNotNull(parsedSignature.getSignatureCreation());
