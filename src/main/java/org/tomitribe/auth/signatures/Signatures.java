@@ -42,9 +42,14 @@ public enum Signatures {
      * Create a canonicalized string representation of the HTTP request. It is used
      * as the input to calculate the signature of the HTTP request.
      * 
+     * The provided method, path and query values are used to generate the optional
+     * (request-target) field.
+     * 
      * @param required The list of headers that should be included in the HTTP signature.
      * @param method The HTTP method.
-     * @param uri The HTTP request URI.
+     * @param uri The path and query of the request target of the message.
+     *            The value must already be encoded exactly as it will be sent in the
+     *            request line of the HTTP message. No URL encoding is performed by this method.
      * @param headers A map of header names to header values.
      * @param signatureCreationTime The signature creation time in milliseconds since the epoch.
      * @param signatureExpiryTime The signature expiration time in milliseconds since the epoch.
