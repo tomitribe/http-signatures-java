@@ -56,7 +56,7 @@ public class SignatureTest {
 
     @Test
     public void nullHeaders() {
-        final Signature signature = new Signature("somekey", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList());
+        final Signature signature = new Signature("somekey", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList());
         assertEquals(1, signature.getHeaders().size()); // should contain at least the Date which is required
         assertEquals("date", signature.getHeaders().get(0).toLowerCase());
     }
@@ -64,7 +64,7 @@ public class SignatureTest {
 
     @Test
     public void roundTripTest() throws Exception {
-        final Signature expected = new Signature("somekey", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
+        final Signature expected = new Signature("somekey", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
         final Signature actual = Signature.fromString(expected.toString(), null);
 
         assertSignature(expected, actual);
@@ -202,7 +202,7 @@ public class SignatureTest {
     @Test
     public void orderTolerance() throws Exception {
 
-        final Signature expected = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
+        final Signature expected = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
 
         final List<String> input = Arrays.asList(
                 "keyId=\"hmac-key-1\"",
@@ -227,7 +227,7 @@ public class SignatureTest {
     @Test
     public void caseNormalization() throws Exception {
 
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hMaC-ShA256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("dAte", "aCcEpt"));
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hMaC-ShA256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("dAte", "aCcEpt"));
 
         assertEquals("hmac-key-1", signature.getKeyId());
         assertEquals("hmac-sha256", signature.getAlgorithm().toString());
@@ -324,7 +324,7 @@ public class SignatureTest {
     @Test
     public void testToString() throws Exception {
 
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
 
         String authorization = "Signature keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
