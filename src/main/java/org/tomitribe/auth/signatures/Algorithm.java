@@ -38,6 +38,10 @@ public enum Algorithm {
     RSA_SHA384("SHA384withRSA", "rsa-sha384", java.security.Signature.class),
     RSA_SHA512("SHA512withRSA", "rsa-sha512", java.security.Signature.class),
 
+    RSA_SHA3_256("SHA3-256withRSA", "rsa-sha3-256", java.security.Signature.class),
+    RSA_SHA3_384("SHA3-384withRSA", "rsa-sha3-384", java.security.Signature.class),
+    RSA_SHA3_512("SHA3-512withRSA", "rsa-sha3-512", java.security.Signature.class),
+
     // RSA PSS signature
     // This algorithm requires parameter. For example:
     // new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1)
@@ -47,12 +51,34 @@ public enum Algorithm {
     DSA_SHA1("SHA1withDSA", "dsa-sha1", java.security.Signature.class),
     DSA_SHA224("SHA224withDSA", "dsa-sha224", java.security.Signature.class),
     DSA_SHA256("SHA256withDSA", "dsa-sha256", java.security.Signature.class),
+    DSA_SHA384("SHA384withDSA", "dsa-sha384", java.security.Signature.class),
+    DSA_SHA512("SHA512withDSA", "dsa-sha512", java.security.Signature.class),
 
-    // ecc
+    // dsa with SHA3
+    DSA_SHA3_256("SHA3-256withDSA", "dsa-sha3-256", java.security.Signature.class),
+    DSA_SHA3_384("SHA3-384withDSA", "dsa-sha3-384", java.security.Signature.class),
+    DSA_SHA3_512("SHA3-512withDSA", "dsa-sha3-512", java.security.Signature.class),
+
+    // ecdsa
+    // The format of the Signature bytes for these algorithms is an ASN.1 encoded
+    // sequence as specified in RFC 3279 section 2.2.2.
     ECDSA_SHA1("SHA1withECDSA", "ecdsa-sha1", java.security.Signature.class),
     ECDSA_SHA256("SHA256withECDSA", "ecdsa-sha256", java.security.Signature.class),
     ECDSA_SHA384("SHA384withECDSA", "ecdsa-sha384", java.security.Signature.class),
     ECDSA_SHA512("SHA512withECDSA", "ecdsa-sha512", java.security.Signature.class),
+
+    // ecdsa with SHA3
+    ECDSA_SHA3_256("SHA3-256withECDSA", "ecdsa-sha3-256", java.security.Signature.class),
+    ECDSA_SHA3_384("SHA3-384withECDSA", "ecdsa-sha3-384", java.security.Signature.class),
+    ECDSA_SHA3_512("SHA3-512withECDSA", "ecdsa-sha3-512", java.security.Signature.class),
+
+    // ecdsa in P1363 Format.
+    // The ECDSA signature algorithms as defined in ANSI X9.62 with an output as
+    // defined in IEEE P1363 format.
+    // The signature is the raw concatenation of r and s.
+    ECDSA_SHA256_P1363("SHA256withECDSAinP1363Format", "ecdsa-sha256-p1363", java.security.Signature.class),
+    ECDSA_SHA384_P1363("SHA384withECDSAinP1363Format", "ecdsa-sha384-p1363", java.security.Signature.class),
+    ECDSA_SHA512_P1363("SHA512withECDSAinP1363Format", "ecdsa-sha512-p1363", java.security.Signature.class),
     ;
 
     private static final Map<String, Algorithm> aliases = new HashMap<String, Algorithm>();

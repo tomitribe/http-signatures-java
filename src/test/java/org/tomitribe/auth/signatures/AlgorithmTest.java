@@ -34,14 +34,28 @@ public class AlgorithmTest extends Assert {
         assertEquals("rsa-sha256", RSA_SHA256.getPortableName());
         assertEquals("rsa-sha384", RSA_SHA384.getPortableName());
         assertEquals("rsa-sha512", RSA_SHA512.getPortableName());
+        assertEquals("rsa-sha3-256", RSA_SHA3_256.getPortableName());
+        assertEquals("rsa-sha3-384", RSA_SHA3_384.getPortableName());
+        assertEquals("rsa-sha3-512", RSA_SHA3_512.getPortableName());
         assertEquals("rsassa-pss", RSA_PSS.getPortableName());
         assertEquals("dsa-sha1", DSA_SHA1.getPortableName());
         assertEquals("dsa-sha224", DSA_SHA224.getPortableName());
         assertEquals("dsa-sha256", DSA_SHA256.getPortableName());
+        assertEquals("dsa-sha384", DSA_SHA384.getPortableName());
+        assertEquals("dsa-sha512", DSA_SHA512.getPortableName());
+        assertEquals("dsa-sha3-256", DSA_SHA3_256.getPortableName());
+        assertEquals("dsa-sha3-384", DSA_SHA3_384.getPortableName());
+        assertEquals("dsa-sha3-512", DSA_SHA3_512.getPortableName());
         assertEquals("ecdsa-sha1", ECDSA_SHA1.getPortableName());
         assertEquals("ecdsa-sha256", ECDSA_SHA256.getPortableName());
         assertEquals("ecdsa-sha384", ECDSA_SHA384.getPortableName());
         assertEquals("ecdsa-sha512", ECDSA_SHA512.getPortableName());
+        assertEquals("ecdsa-sha3-256", ECDSA_SHA3_256.getPortableName());
+        assertEquals("ecdsa-sha3-384", ECDSA_SHA3_384.getPortableName());
+        assertEquals("ecdsa-sha3-512", ECDSA_SHA3_512.getPortableName());
+        assertEquals("ecdsa-sha256-p1363", ECDSA_SHA256_P1363.getPortableName());
+        assertEquals("ecdsa-sha384-p1363", ECDSA_SHA384_P1363.getPortableName());
+        assertEquals("ecdsa-sha512-p1363", ECDSA_SHA512_P1363.getPortableName());
     }
 
     @Test
@@ -55,14 +69,25 @@ public class AlgorithmTest extends Assert {
         assertEquals("SHA256withRSA", RSA_SHA256.getJvmName());
         assertEquals("SHA384withRSA", RSA_SHA384.getJvmName());
         assertEquals("SHA512withRSA", RSA_SHA512.getJvmName());
+        assertEquals("SHA3-256withRSA", RSA_SHA3_256.getJvmName());
+        assertEquals("SHA3-384withRSA", RSA_SHA3_384.getJvmName());
+        assertEquals("SHA3-512withRSA", RSA_SHA3_512.getJvmName());
         assertEquals("RSASSA-PSS", RSA_PSS.getJvmName());
         assertEquals("SHA1withDSA", DSA_SHA1.getJvmName());
         assertEquals("SHA224withDSA", DSA_SHA224.getJvmName());
         assertEquals("SHA256withDSA", DSA_SHA256.getJvmName());
+        assertEquals("SHA384withDSA", DSA_SHA384.getJvmName());
+        assertEquals("SHA512withDSA", DSA_SHA512.getJvmName());
         assertEquals("SHA1withECDSA", ECDSA_SHA1.getJvmName());
         assertEquals("SHA256withECDSA", ECDSA_SHA256.getJvmName());
         assertEquals("SHA384withECDSA", ECDSA_SHA384.getJvmName());
         assertEquals("SHA512withECDSA", ECDSA_SHA512.getJvmName());
+        assertEquals("SHA3-256withECDSA", ECDSA_SHA3_256.getJvmName());
+        assertEquals("SHA3-384withECDSA", ECDSA_SHA3_384.getJvmName());
+        assertEquals("SHA3-512withECDSA", ECDSA_SHA3_512.getJvmName());
+        assertEquals("SHA256withECDSAinP1363Format", ECDSA_SHA256_P1363.getJvmName());
+        assertEquals("SHA384withECDSAinP1363Format", ECDSA_SHA384_P1363.getJvmName());
+        assertEquals("SHA512withECDSAinP1363Format", ECDSA_SHA512_P1363.getJvmName());
     }
 
     @Test
