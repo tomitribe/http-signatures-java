@@ -28,8 +28,6 @@ import java.util.Map;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
 
 public class RsaTest extends Assert {
 

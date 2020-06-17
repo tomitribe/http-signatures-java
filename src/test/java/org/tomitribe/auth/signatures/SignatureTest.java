@@ -54,6 +54,181 @@ public class SignatureTest {
         new Signature("somekey", null, "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
     }
 
+    /**
+     * Invalid (created) field, the value must be a number, not a string.
+     */
+    @Test(expected = InvalidCreatedFieldException.class)
+    public void signatureCreatedFieldAsString() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=\"1591763110\"," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+
+    /**
+     * The signature is invalid because the (created) field is in the future.
+     */
+    @Test(expected = InvalidCreatedFieldException.class)
+    public void signatureCreatedInTheFuture() throws Exception {
+        long created = (System.currentTimeMillis() / 1000L) + 3600;
+        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=%d," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"", created);
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * The signature is invalid because the (expires) field is in the past.
+     */
+    @Test(expected = InvalidExpiresFieldException.class)
+    public void signatureExpiresInThePast() throws Exception {
+        double expires = (System.currentTimeMillis() / 1000.0) - 3600;
+        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "expires=%f," +
+                "headers=\"(expires)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"", expires);
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * The signature has been created slightly in the future.
+     * In practice, this is most likely due to a time skew between the client and server.
+     */
+    @Test
+    public void signatureCreatedSlightlyInTheFuture() throws Exception {
+        long created = (System.currentTimeMillis() / 1000L) + 5;
+        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=%d," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"", created);
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid (created) field, the value must be a number, not a string.
+     */
+    @Test(expected = InvalidCreatedFieldException.class)
+    public void signatureCreatedFieldIntegerTooLarge() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=15917631101724387234723847238492374892374283947289472398472834," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid (created) field, the value must be an integer, decimal values are not supported.
+     */
+    @Test(expected = InvalidCreatedFieldException.class)
+    public void signatureCreatedFieldDecimalValue() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=1591763110.123," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid (expires) field, the value must be a number, not a string.
+     */
+    @Test(expected = InvalidExpiresFieldException.class)
+    public void signatureExpiresFieldAsString() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "expires=\"159176.3110\"," +
+                "headers=\"(expires)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid (expires) field, the value must be a parseable number
+     */
+    @Test(expected = InvalidExpiresFieldException.class)
+    public void signatureExpiresFieldInvalidNumber() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "expires=\"159176..3110\"," +
+                "headers=\"(expires)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid keyId field, the value must be a double-quoted string.
+     */
+    @Test(expected = MissingKeyIdException.class)
+    public void signatureInvalidKeyIdFormat() throws Exception {
+        String authorization = "Signature keyId=hmac-key-1,algorithm=\"hmac-sha256\"," +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid keyId field, the value must be a double-quoted string, not a number.
+     */
+    @Test(expected = MissingKeyIdException.class)
+    public void signatureInvalidKeyIdFormatNumberr() throws Exception {
+        String authorization = "Signature keyId=1123,algorithm=\"hmac-sha256\"," +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+    
+    /**
+     * Invalid algorithm field, the value must be a double-quoted string.
+     */
+    @Test(expected = MissingAlgorithmException.class)
+    public void signatureInvalidAlgorithmFormat() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=256," +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid signature field, the value must be a double-quoted string.
+     */
+    @Test(expected = MissingSignatureException.class)
+    public void signatureInvalidSignatureFormat() throws Exception {
+        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                ",signature=1234";
+        Signature.fromString(authorization, null);
+    }
+    
+    /**
+     * Invalid max validity, it cannot be a negative value.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void maxValidityNegative() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), -1L);
+    }
+
+    /**
+     * Invalid max validity, it cannot be zero.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void maxValidityZeroValue() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 0L);
+    }
+
+    /**
+     * Value of max validity is valid.
+     */
+    @Test
+    public void maxValidity() throws Exception {
+        new Signature("hmac-key-1",
+            SigningAlgorithm.HS2019, 
+            Algorithm.HMAC_SHA256, null,
+            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 123L);
+    }
+
+
     @Test
     public void nullHeaders() {
         final Signature signature = new Signature("somekey", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList());
@@ -158,6 +333,34 @@ public class SignatureTest {
                 "four\n" +
                 "five\n" +
                 "six", join("\n", signature.getHeaders()));
+    }
+
+    /**
+     * Signature validity fields (created) and (expires).
+     */
+    @Test
+    public void signatureCreatedAndExpiresFields() throws Exception {
+        long created = (System.currentTimeMillis() / 1000L) * 1000L;
+        long expires = System.currentTimeMillis() + 3600L * 1000L;
+        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=%d,expires=%f," +
+                "headers=\"(request-target) (created) (expires) one two\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"", created / 1000L, expires / 1000.0);
+
+        final Signature signature = Signature.fromString(authorization, null);
+
+        assertEquals("hmac-key-1", signature.getKeyId());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
+        assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
+        assertEquals(
+                "(request-target)\n" +
+                "(created)\n" +
+                "(expires)\n" +
+                "one\n" +
+                "two", join("\n", signature.getHeaders()));
+        assertEquals((Long)created, signature.getSignatureCreationTimeMilliseconds());
+        assertEquals((Long)expires, signature.getSignatureExpirationTimeMilliseconds());
+        signature.verifySignatureValidityDates();
     }
 
     @Test
