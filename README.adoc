@@ -4,7 +4,7 @@
 HTTP signatures provide a mechanism by which a shared secret key can be used to digitally "sign" a HTTP message to both verify the
 identity of the sender and verify that the message has not been tampered with in-transit.
 
-This is done by contatinating the desired HTTP Headers together to form a string called a "Signing String".  An encrypted 
+This is done by concatenating the desired HTTP Headers together to form a string called a "Signing String".  An encrypted 
 hash (digitial signature) is made of the Signing String using either an asymmetric algorithm (`rsa-sha256`) with a 
 public/private key pair or a symmetric algorithm (`hmac-sha256`) with a shared secret key.
 
@@ -43,7 +43,7 @@ Add the following dependency to your Maven pom file.
 <dependency>
   <groupId>org.tomitribe</groupId>
   <artifactId>tomitribe-http-signatures</artifactId>
-  <version>1.0</version>
+  <version>1.5</version>
 </dependency>
 ----
 
@@ -169,7 +169,7 @@ return signer.sign(method, uri, headers);
 
 == References
 
-Signing HTTP Messages (Internet Draft 4) https://www.ietf.org/id/draft-cavage-http-signatures-04.txt
+Signing HTTP Messages (Internet Draft) https://tools.ietf.org/html/draft-ietf-httpbis-message-signatures-00
 
 Instance Digests in HTTP http://tools.ietf.org/html/rfc3230
 
