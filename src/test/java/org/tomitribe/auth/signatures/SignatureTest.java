@@ -59,7 +59,7 @@ public class SignatureTest {
      */
     @Test(expected = InvalidCreatedFieldException.class)
     public void signatureCreatedFieldAsString() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=\"1591763110\"," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -72,8 +72,8 @@ public class SignatureTest {
      */
     @Test(expected = InvalidCreatedFieldException.class)
     public void signatureCreatedInTheFuture() throws Exception {
-        long created = (System.currentTimeMillis() / 1000L) + 3600;
-        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final long created = (System.currentTimeMillis() / 1000L) + 3600;
+        final String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=%d," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"", created);
@@ -85,8 +85,8 @@ public class SignatureTest {
      */
     @Test(expected = InvalidExpiresFieldException.class)
     public void signatureExpiresInThePast() throws Exception {
-        double expires = (System.currentTimeMillis() / 1000.0) - 3600;
-        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final double expires = (System.currentTimeMillis() / 1000.0) - 3600;
+        final String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "expires=%f," +
                 "headers=\"(expires)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"", expires);
@@ -99,8 +99,8 @@ public class SignatureTest {
      */
     @Test
     public void signatureCreatedSlightlyInTheFuture() throws Exception {
-        long created = (System.currentTimeMillis() / 1000L) + 5;
-        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final long created = (System.currentTimeMillis() / 1000L) + 5;
+        final String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=%d," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"", created);
@@ -112,7 +112,7 @@ public class SignatureTest {
      */
     @Test(expected = InvalidCreatedFieldException.class)
     public void signatureCreatedFieldIntegerTooLarge() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=15917631101724387234723847238492374892374283947289472398472834," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -124,7 +124,7 @@ public class SignatureTest {
      */
     @Test(expected = InvalidCreatedFieldException.class)
     public void signatureCreatedFieldDecimalValue() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=1591763110.123," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -136,7 +136,7 @@ public class SignatureTest {
      */
     @Test(expected = InvalidExpiresFieldException.class)
     public void signatureExpiresFieldAsString() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "expires=\"159176.3110\"," +
                 "headers=\"(expires)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -148,7 +148,7 @@ public class SignatureTest {
      */
     @Test(expected = InvalidExpiresFieldException.class)
     public void signatureExpiresFieldInvalidNumber() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "expires=\"159176..3110\"," +
                 "headers=\"(expires)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -160,7 +160,7 @@ public class SignatureTest {
      */
     @Test(expected = MissingKeyIdException.class)
     public void signatureInvalidKeyIdFormat() throws Exception {
-        String authorization = "Signature keyId=hmac-key-1,algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=hmac-key-1,algorithm=\"hmac-sha256\"," +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
         Signature.fromString(authorization, null);
     }
@@ -170,7 +170,7 @@ public class SignatureTest {
      */
     @Test(expected = MissingKeyIdException.class)
     public void signatureInvalidKeyIdFormatNumberr() throws Exception {
-        String authorization = "Signature keyId=1123,algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=1123,algorithm=\"hmac-sha256\"," +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
         Signature.fromString(authorization, null);
     }
@@ -180,7 +180,7 @@ public class SignatureTest {
      */
     @Test(expected = MissingAlgorithmException.class)
     public void signatureInvalidAlgorithmFormat() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=256," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=256," +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
         Signature.fromString(authorization, null);
     }
@@ -190,7 +190,7 @@ public class SignatureTest {
      */
     @Test(expected = MissingSignatureException.class)
     public void signatureInvalidSignatureFormat() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 ",signature=1234";
         Signature.fromString(authorization, null);
     }
@@ -247,7 +247,7 @@ public class SignatureTest {
 
     @Test
     public void testFromString() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
                 "   headers=\"(request-target) host date digest content-length\",\n" +
                 "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
 
@@ -269,7 +269,7 @@ public class SignatureTest {
      */
     @Test
     public void testFromStringHmacSha256() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\",\n" +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\",\n" +
                 "   headers=\"(request-target) host date digest content-length\",\n" +
                 "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
 
@@ -287,7 +287,7 @@ public class SignatureTest {
 
     @Test
     public void testFromStringWithLdapDNKeyId() throws Exception {
-        String authorization = "Signature keyId=\"UID=jsmith,DC=example,DC=net\",algorithm=\"hmac-sha256\",\n" +
+        final String authorization = "Signature keyId=\"UID=jsmith,DC=example,DC=net\",algorithm=\"hmac-sha256\",\n" +
                 "   headers=\"(request-target) host date digest content-length\",\n" +
                 "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
 
@@ -302,7 +302,7 @@ public class SignatureTest {
      */
     @Test
     public void noHeaders() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
                 "   signature=\"Base64(HMAC-SHA256(signing string))\"";
 
         final Signature signature = Signature.fromString(authorization, null);
@@ -318,7 +318,7 @@ public class SignatureTest {
      */
     @Test
     public void headersOrder() throws Exception {
-        String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "headers=\"one two three four five six\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
 
@@ -340,9 +340,9 @@ public class SignatureTest {
      */
     @Test
     public void signatureCreatedAndExpiresFields() throws Exception {
-        long created = (System.currentTimeMillis() / 1000L) * 1000L;
-        long expires = System.currentTimeMillis() + 3600L * 1000L;
-        String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+        final long created = (System.currentTimeMillis() / 1000L) * 1000L;
+        final long expires = System.currentTimeMillis() + 3600L * 1000L;
+        final String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=%d,expires=%f," +
                 "headers=\"(request-target) (created) (expires) one two\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"", created / 1000L, expires / 1000.0);
@@ -365,7 +365,7 @@ public class SignatureTest {
 
     @Test
     public void noSignaturePrefix() throws Exception {
-        String authorization = "keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
+        final String authorization = "keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
                 "   signature=\"Base64(HMAC-SHA256(signing string))\"";
 
         final Signature signature = Signature.fromString(authorization, null);
@@ -382,7 +382,7 @@ public class SignatureTest {
      */
     @Test
     public void whitespaceTolerance() throws Exception {
-        String authorization = "  \nkeyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
+        final String authorization = "  \nkeyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
                 "   signature=\"Base64(HMAC-SHA256(signing string))\"  \n";
 
         Signature signature = Signature.fromString(authorization, null);
@@ -514,7 +514,7 @@ public class SignatureTest {
 
     @Test
     public void trailingCommaTolerance() throws Exception {
-        String authorization = "" +
+        final String authorization = "" +
                 "keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
                 "headers=\"date accept\"," +
@@ -529,7 +529,7 @@ public class SignatureTest {
 
         final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
 
-        String authorization = "Signature keyId=\"hmac-key-1\"," +
+        final String authorization = "Signature keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
                 "headers=\"(request-target) host date digest content-length\"," +
                 "signature=\"Base64(HMAC-SHA256(signing string))\"";
@@ -562,9 +562,9 @@ public class SignatureTest {
 
                 Signature.fromString(authorization.toString(), null);
 
-            } catch (AuthenticationException e) {
+            } catch (final AuthenticationException e) {
                 // pass
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 fail("SignatureHeaderFormatException should be the only possible exception type: caught " + e.getClass().getName());
             }
         }
@@ -572,7 +572,7 @@ public class SignatureTest {
 
     @Test(expected = MissingKeyIdException.class)
     public void missingKeyId() {
-        String authorization = "" +
+        final String authorization = "" +
 //                "keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
                 "headers=\"(request-target) host date digest content-length\"," +
@@ -583,7 +583,7 @@ public class SignatureTest {
 
     @Test(expected = MissingAlgorithmException.class)
     public void missingAlgorithm() {
-        String authorization = "" +
+        final String authorization = "" +
                 "keyId=\"hmac-key-1\"," +
 //                "algorithm=\"hmac-sha256\"," +
                 "headers=\"(request-target) host date digest content-length\"," +
@@ -595,7 +595,7 @@ public class SignatureTest {
 
     @Test(expected = MissingSignatureException.class)
     public void missingSignature() {
-        String authorization = "" +
+        final String authorization = "" +
                 "keyId=\"hmac-key-1\"," +
                 "algorithm=\"hmac-sha256\"," +
                 "headers=\"(request-target) host date digest content-length\"";
@@ -610,7 +610,7 @@ public class SignatureTest {
         assertSignature(expected, actual);
     }
 
-    private static void assertSignature(Signature expected, Signature actual) {
+    private static void assertSignature(final Signature expected, final Signature actual) {
         assertEquals(expected.getKeyId(), actual.getKeyId());
         assertEquals(expected.getAlgorithm(), actual.getAlgorithm());
         assertEquals(expected.getSignature(), actual.getSignature());

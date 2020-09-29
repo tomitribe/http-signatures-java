@@ -18,7 +18,7 @@ package org.tomitribe.auth.signatures;
 
 public class MissingRequiredHeaderException extends AuthenticationException {
 
-    public MissingRequiredHeaderException(String key) {
+    public MissingRequiredHeaderException(final String key) {
         super(key);
     }
 

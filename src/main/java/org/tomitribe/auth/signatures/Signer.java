@@ -128,7 +128,7 @@ public class Signer {
      * @throws IOException when an exception occurs while creating the signing string.
      */
     public String createSigningString(final String method, final String uri, final Map<String, String> headers,
-                                      Long created, Long expires) throws IOException {
+                                      final Long created, final Long expires) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, created, expires);
     }
 
@@ -172,11 +172,11 @@ public class Signer {
                 instance.update(signingStringBytes);
                 return instance.sign();
 
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
 
                 throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
 
                 throw new IllegalStateException(e);
             }
@@ -200,11 +200,11 @@ public class Signer {
                 mac.init(key);
                 return mac.doFinal(signingStringBytes);
 
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
 
                 throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
 
                 throw new IllegalStateException(e);
 

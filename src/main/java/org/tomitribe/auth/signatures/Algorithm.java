@@ -121,7 +121,7 @@ public enum Algorithm {
         return get(name).getJvmName();
     }
 
-    public static Algorithm get(String name) {
+    public static Algorithm get(final String name) {
         final Algorithm algorithm = aliases.get(normalize(name));
 
         if (algorithm != null) return algorithm;
@@ -129,7 +129,7 @@ public enum Algorithm {
         throw new UnsupportedAlgorithmException(name);
     }
 
-    private static String normalize(String algorithm) {
+    private static String normalize(final String algorithm) {
         return algorithm.replaceAll("[^A-Za-z0-9]+", "").toLowerCase();
     }
 

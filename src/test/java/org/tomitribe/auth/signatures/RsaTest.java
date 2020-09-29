@@ -158,7 +158,7 @@ public class RsaTest extends Assert {
         // The RSASSA-PSS signature is non-deterministic, the value of the signature will be different
         // every time a signature is generated.
         final Verifier verifier = new Verifier(publicKey, signature);
-        boolean verifies = verifier.verify(method, uri, headers);
+        final boolean verifies = verifier.verify(method, uri, headers);
         assertTrue(verifies);
     }
 

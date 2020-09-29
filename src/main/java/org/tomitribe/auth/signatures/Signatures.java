@@ -34,7 +34,7 @@ public enum Signatures {
      * @param uri The HTTP request URI.
      * @param headers A map of header names to header values.
      */
-    public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers) {
+    public static String createSigningString(final List<String> required, final String method, final String uri, final Map<String, String> headers) {
         return createSigningString(required, method, uri, headers);
     }
 
@@ -55,7 +55,7 @@ public enum Signatures {
      * @param signatureExpiryTime The signature expiration time in milliseconds since the epoch.
      */
     public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers,
-                                             Long signatureCreationTime, Long signatureExpiryTime) {
+                                             final Long signatureCreationTime, final Long signatureExpiryTime) {
         headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());
@@ -87,7 +87,7 @@ public enum Signatures {
                 if (signatureExpiryTime == null) {
                     throw new InvalidExpiresFieldException("(expires) field requested but signature expiration time is not set");
                 }
-                double expires = signatureExpiryTime / 1000.0;
+                final double expires = signatureExpiryTime / 1000.0;
                 list.add(key + ": " + String.format("%.3f", expires));
             } else {
                 final String value = headers.get(key);

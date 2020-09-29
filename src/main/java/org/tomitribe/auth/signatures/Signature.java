@@ -118,7 +118,7 @@ public class Signature {
      * This field is set at the time the cryptographic signature is generated, or when
      * the 'Authorization' header is parsed.
      */
-    private Long signatureCreatedTime;
+    private final Long signatureCreatedTime;
 
     /**
      * The signature's Expiration Time, in milliseconds since the epoch.
@@ -126,7 +126,7 @@ public class Signature {
      * This field is set at the time the cryptographic signature is generated, or when
      * the 'Authorization' header is parsed.
      */
-    private Long signatureExpiresTime;
+    private final Long signatureExpiresTime;
 
     /**
      * Regular expression pattern for fields present in the Authorization field.
@@ -156,12 +156,12 @@ public class Signature {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, null, headers);
     }
 
-    private static Algorithm getAlgorithm(String algorithm) {
+    private static Algorithm getAlgorithm(final String algorithm) {
         if (algorithm == null) throw new IllegalArgumentException("Algorithm cannot be null");
         return Algorithm.get(algorithm);
     }
 
-    private static SigningAlgorithm getSigningAlgorithm(String scheme) {
+    private static SigningAlgorithm getSigningAlgorithm(final String scheme) {
         if (scheme == null) throw new IllegalArgumentException("Signing scheme cannot be null");
         return SigningAlgorithm.get(scheme);
     }
@@ -185,7 +185,7 @@ public class Signature {
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
                      final AlgorithmParameterSpec parameterSpec, final String signature,
                      final List<String> headers, final Long maxSignatureValidityDuration,
-                     Long signatureCreatedTime, Long signatureExpiresTime) {
+                     final Long signatureCreatedTime, final Long signatureExpiresTime) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
@@ -270,9 +270,9 @@ public class Signature {
         return signatureExpiresTime;
     }
 
-    private List<String> lowercase(List<String> headers) {
+    private List<String> lowercase(final List<String> headers) {
         final List<String> list = new ArrayList<String>(headers.size());
-        for (String header : headers) {
+        for (final String header : headers) {
             list.add(header.toLowerCase());
         }
         return list;
@@ -353,7 +353,7 @@ public class Signature {
      *
      * @return The Signature object.
      */
-    public static Signature fromString(String authorization, Algorithm algorithm) {
+    public static Signature fromString(String authorization, final Algorithm algorithm) {
         /**
          * A HTTP signature field value in the authorization header.
          */
@@ -367,7 +367,7 @@ public class Signature {
              */
             private boolean isNumber;
 
-            FieldValue(String value, boolean isNumber) throws ParseException {
+            FieldValue(final String value, final boolean isNumber) throws ParseException {
                 this.isNumber = isNumber;
                 if (isNumber) {
                     this.value = NumberFormat.getInstance().parse(value);
@@ -478,7 +478,7 @@ public class Signature {
             SigningAlgorithm parsedSigningAlgorithm = null;
             try {
                 parsedSigningAlgorithm = SigningAlgorithm.get(algorithmField);
-            } catch (UnsupportedAlgorithmException ex) {
+            } catch (final UnsupportedAlgorithmException ex) {
                 // This may happen for older implementations that pass the serialize the detailed
                 // algorithm instead of using 'hs2019'. In that case, the value of 'algorithm'
                 // should be one of the supported values in the Algorithm enum. If not, an
@@ -490,7 +490,7 @@ public class Signature {
                 if (algorithm != null && parsedAlgorithm.getPortableName() != algorithm.getPortableName()) {
                     throw new IllegalArgumentException("The algorithm does not match the value of the 'Authorization' header.");
                 }
-            } catch (UnsupportedAlgorithmException ex) {
+            } catch (final UnsupportedAlgorithmException ex) {
                 // This is expected for new conformant implementations that set the algorithm
                 // field in the 'Authorization' header to 'hs2019'. The algorithm must be
                 // derived from the keyId. The client is responsible for maintaining the
@@ -505,9 +505,9 @@ public class Signature {
             s.verifySignatureValidityDates();
             return s;
 
-        } catch (AuthenticationException e) {
+        } catch (final AuthenticationException e) {
             throw e;
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             throw new UnparsableSignatureException(authorization, e);
         }
     }
@@ -525,7 +525,7 @@ public class Signature {
 
     @Override
     public String toString() {
-        Object alg;
+        final Object alg;
         if (SigningAlgorithm.HS2019.equals(signingAlgorithm)) {
             // When the signing algorithm is set to 'hs2019', the value of the algorithm
             // field must be set to 'hs2019'. The specific crypto algorithm is not

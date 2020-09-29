@@ -49,7 +49,7 @@ public enum RSA {
             final EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(pkcs8);
             final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
             return keyFactory.generatePrivate(privateKeySpec);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -65,9 +65,9 @@ public enum RSA {
             final RSAPrivateCrtKeySpec privateKeySpec = newRSAPrivateCrtKeySpec(pkcs1);
             final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
             return keyFactory.generatePrivate(privateKeySpec);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalArgumentException(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -83,7 +83,7 @@ public enum RSA {
             final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
             final EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(derBytes);
             return keyFactory.generatePublic(publicKeySpec);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -196,7 +196,7 @@ public enum RSA {
          * @param length Length of the field
          * @param value Encoded octet string for the field.
          */
-        public Asn1Object(int tag, int length, byte[] value) {
+        public Asn1Object(final int tag, final int length, final byte[] value) {
             this.tag = tag;
             this.type = tag & 0x1F;
             this.length = length;

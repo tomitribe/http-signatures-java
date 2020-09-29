@@ -294,9 +294,9 @@ public class SignerTest extends Assert {
                     SigningAlgorithm.RSA_SHA256,
                     Algorithm.RSA_SHA256, null, null,
                     Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
-            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
+            final PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
             final Signer signer = new Signer(privateKey, signature);
-            Signature s = signer.sign("POST", "", headers);
+            final Signature s = signer.sign("POST", "", headers);
             assertTrue(s.toString().contains("algorithm=\"rsa-sha256\""));
         }
         {
@@ -309,9 +309,9 @@ public class SignerTest extends Assert {
                     SigningAlgorithm.HS2019,
                     Algorithm.RSA_SHA256, null, null,
                     Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
-            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
+            final PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(rsaPrivateKeyPem.getBytes()));
             final Signer signer = new Signer(privateKey, signature);
-            Signature s = signer.sign("POST", "", headers);
+            final Signature s = signer.sign("POST", "", headers);
             assertTrue(s.toString().contains("algorithm=\"hs2019\""));
         }
         {
@@ -324,9 +324,9 @@ public class SignerTest extends Assert {
                     SigningAlgorithm.HS2019,
                     Algorithm.ECDSA_SHA256, null, null,
                     Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
-            PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(ecPrivateKeyPem.getBytes()));
+            final PrivateKey privateKey = PEM.readPrivateKey(new ByteArrayInputStream(ecPrivateKeyPem.getBytes()));
             final Signer signer = new Signer(privateKey, signature);
-            Signature s = signer.sign("POST", "", headers);
+            final Signature s = signer.sign("POST", "", headers);
             assertTrue(s.toString().contains("algorithm=\"hs2019\""));
         }
     }

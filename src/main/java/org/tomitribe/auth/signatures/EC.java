@@ -46,9 +46,9 @@ public enum EC {
             final EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(pkcs8);
             final KeyFactory keyFactory = KeyFactory.getInstance(EC, SUNEC);
             return keyFactory.generatePrivate(privateKeySpec);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -64,9 +64,9 @@ public enum EC {
             final KeyFactory keyFactory = KeyFactory.getInstance(EC, SUNEC);
             final EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(derBytes);
             return keyFactory.generatePublic(publicKeySpec);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
-        } catch (NoSuchProviderException e) {
+        } catch (final NoSuchProviderException e) {
             throw new IllegalStateException(e);
         }
     }

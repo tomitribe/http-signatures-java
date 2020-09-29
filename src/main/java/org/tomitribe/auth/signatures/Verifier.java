@@ -121,11 +121,11 @@ public class Verifier {
                 instance.update(signingStringBytes);
                 return instance.verify(Base64.decodeBase64(signature.getSignature().getBytes()));
 
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
 
                 throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
 
                 throw new IllegalStateException(e);
             }
@@ -147,15 +147,15 @@ public class Verifier {
 
                 final Mac mac = provider == null ? Mac.getInstance(algorithm.getJvmName()) : Mac.getInstance(algorithm.getJvmName(), provider);
                 mac.init(key);
-                byte[] hash = mac.doFinal(signingStringBytes);
-                byte[] encoded = Base64.encodeBase64(hash);
+                final byte[] hash = mac.doFinal(signingStringBytes);
+                final byte[] encoded = Base64.encodeBase64(hash);
 
                 return MessageDigest.isEqual(encoded, signature.getSignature().getBytes());
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
 
                 throw new UnsupportedAlgorithmException(algorithm.getJvmName());
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
 
                 throw new IllegalStateException(e);
 

@@ -152,7 +152,7 @@ public enum Base64 {
      * @param octect The value to test
      * @return <code>true</code> if the value is defined in the the base 64 alphabet, <code>false</code> otherwise.
      */
-    private static boolean isBase64(byte octect) {
+    private static boolean isBase64(final byte octect) {
         if (octect == PAD) {
             return true;
         } else if (octect < 0 || base64Alphabet[octect] == -1) {
@@ -169,7 +169,7 @@ public enum Base64 {
      * @param binaryData binary data to encode
      * @return Base64 characters
      */
-    public static byte[] encodeBase64(byte[] binaryData) {
+    public static byte[] encodeBase64(final byte[] binaryData) {
         return encodeBase64(binaryData, false);
     }
 
@@ -183,10 +183,10 @@ public enum Base64 {
      *                  the base64 output into 76 character blocks
      * @return Base64-encoded data.
      */
-    public static byte[] encodeBase64(byte[] binaryData, boolean isChunked) {
-        int lengthDataBits = binaryData.length * EIGHTBIT;
-        int fewerThan24bits = lengthDataBits % TWENTYFOURBITGROUP;
-        int numberTriplets = lengthDataBits / TWENTYFOURBITGROUP;
+    public static byte[] encodeBase64(final byte[] binaryData, final boolean isChunked) {
+        final int lengthDataBits = binaryData.length * EIGHTBIT;
+        final int fewerThan24bits = lengthDataBits % TWENTYFOURBITGROUP;
+        final int numberTriplets = lengthDataBits / TWENTYFOURBITGROUP;
         byte encodedData[] = null;
         int encodedDataLength = 0;
         int nbrChunks = 0;
@@ -235,11 +235,11 @@ public enum Base64 {
             l = (byte) (b2 & 0x0f);
             k = (byte) (b1 & 0x03);
 
-            byte val1 =
+            final byte val1 =
                     ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
-            byte val2 =
+            final byte val2 =
                     ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
-            byte val3 =
+            final byte val3 =
                     ((b3 & SIGN) == 0) ? (byte) (b3 >> 6) : (byte) ((b3) >> 6 ^ 0xfc);
 
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
@@ -281,7 +281,7 @@ public enum Base64 {
             k = (byte) (b1 & 0x03);
             //log.debug("b1=" + b1);
             //log.debug("b1<<2 = " + (b1>>2) );
-            byte val1 =
+            final byte val1 =
                     ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
             encodedData[encodedIndex + 1] = lookUpBase64Alphabet[k << 4];
@@ -294,9 +294,9 @@ public enum Base64 {
             l = (byte) (b2 & 0x0f);
             k = (byte) (b1 & 0x03);
 
-            byte val1 =
+            final byte val1 =
                     ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
-            byte val2 =
+            final byte val2 =
                     ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
 
             encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
@@ -336,7 +336,7 @@ public enum Base64 {
             return new byte[0];
         }
 
-        int numberQuadruple = base64Data.length / FOURBYTE;
+        final int numberQuadruple = base64Data.length / FOURBYTE;
         byte decodedData[] = null;
         byte b1 = 0;
         byte b2 = 0;
@@ -403,8 +403,8 @@ public enum Base64 {
      * @param data The base-64 encoded data to groom
      * @return The data, less non-base64 characters (see RFC 2045).
      */
-    static byte[] discardNonBase64(byte[] data) {
-        byte groomedData[] = new byte[data.length];
+    static byte[] discardNonBase64(final byte[] data) {
+        final byte[] groomedData = new byte[data.length];
         int bytesCopied = 0;
 
         for (int i = 0; i < data.length; i++) {
@@ -413,7 +413,7 @@ public enum Base64 {
             }
         }
 
-        byte packedData[] = new byte[bytesCopied];
+        final byte[] packedData = new byte[bytesCopied];
 
         System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
 

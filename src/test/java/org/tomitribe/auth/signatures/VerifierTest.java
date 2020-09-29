@@ -87,7 +87,7 @@ public class VerifierTest extends Assert {
         headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
         headers.put("Accept", "*/*");
         headers.put("Content-Length", "18");
-        boolean verifies = verifier.verify(method, uri, headers);
+        final boolean verifies = verifier.verify(method, uri, headers);
         assertTrue(verifies);
     }
 
@@ -121,7 +121,7 @@ public class VerifierTest extends Assert {
         // Create a signature with a short validation duration.
         // If the signature is verified immediately, the validation should pass.
         // If the signature is verified after the expiration time, the validation should fail.
-        long maxValidity = 1 * 1000L;
+        final long maxValidity = 1 * 1000L;
 
         final Signature inputSignature = new Signature("hmac-key-1",
                 SigningAlgorithm.HS2019, Algorithm.HMAC_SHA256, null, null,
@@ -147,14 +147,14 @@ public class VerifierTest extends Assert {
                 "\\(request-target\\): get \\/foo\\/Bar\n" +
                 "\\(created\\): [\\d]+\n" +
                 "\\(expires\\): [\\d]+\\.?[\\d]*";
-        Pattern regex = Pattern.compile(expectedSigningStringRegex, Pattern.MULTILINE);
+        final Pattern regex = Pattern.compile(expectedSigningStringRegex, Pattern.MULTILINE);
         final String signingString = signer.createSigningString("GET", "/foo/Bar", headers);
         assertTrue(regex.matcher(signingString).find());
 
         // Assert the signature
-        Signature signature = signer.sign("GET", "/foo/Bar", headers);
+        final Signature signature = signer.sign("GET", "/foo/Bar", headers);
 
-        String authorization = signature.toString();
+        final String authorization = signature.toString();
         assertTrue(authorization.contains("(created)"));
         assertTrue(authorization.contains("(expires)"));
         assertTrue(authorization.contains("created="));
@@ -168,13 +168,13 @@ public class VerifierTest extends Assert {
         assertNotNull(parsedSignature.getSignatureExpiration());
 
         final Verifier verifier = new Verifier(key, parsedSignature);
-        boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+        final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
         assertTrue(verifies);
 
         // Sleep a bit, this will cause the signature to expire, then verify
         // the signature again, this time it should fail.
         Thread.sleep(maxValidity);
-        Exception exception = assertThrows(InvalidExpiresFieldException.class, () -> {
+        final Exception exception = assertThrows(InvalidExpiresFieldException.class, () -> {
             verifier.verify("GET", "/foo/Bar", headers);
         });
         assertEquals("Signature has expired", exception.getMessage());
@@ -207,7 +207,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            boolean verifies = verifier.verify(method, uri, headers);
+            final boolean verifies = verifier.verify(method, uri, headers);
             assertTrue(verifies);
         }
 
@@ -221,7 +221,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            boolean verifies = verifier.verify(method, uri, headers);
+            final boolean verifies = verifier.verify(method, uri, headers);
             assertFalse(verifies);
         }
 
@@ -235,7 +235,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            boolean verifies = verifier.verify(method, uri, headers);
+            final boolean verifies = verifier.verify(method, uri, headers);
             assertTrue(verifies);
         }
 
@@ -249,7 +249,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            boolean verifies = verifier.verify(method, uri, headers);
+            final boolean verifies = verifier.verify(method, uri, headers);
             assertFalse(verifies);
         }
     }
@@ -266,7 +266,7 @@ public class VerifierTest extends Assert {
             final Map<String, String> headers = new HashMap<String, String>();
             headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
 
-            boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+            final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
             assertTrue(verifies);
         }
 
@@ -278,7 +278,7 @@ public class VerifierTest extends Assert {
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
 
-            boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+            final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
             assertTrue(verifies);
         }
     }

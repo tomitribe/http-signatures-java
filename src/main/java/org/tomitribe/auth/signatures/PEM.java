@@ -79,7 +79,7 @@ public enum PEM {
                 case PRIVATE_KEY_PKCS8:
                     try {
                         return RSA.privateKeyFromPKCS8(object.getDerBytes());
-                    } catch (InvalidKeySpecException e) {
+                    } catch (final InvalidKeySpecException e) {
                         return EC.privateKeyFromPKCS8(object.getDerBytes());
                     }
                 default:
@@ -113,7 +113,7 @@ public enum PEM {
 
                     try {
                         return RSA.publicKeyFrom(object.getDerBytes());
-                    } catch (InvalidKeySpecException e) {
+                    } catch (final InvalidKeySpecException e) {
                         return EC.publicKeyFrom(object.getDerBytes());
                     }
 
@@ -168,7 +168,7 @@ public enum PEM {
         } finally {
             try {
                 reader.close();
-            } catch (IOException ignore) {
+            } catch (final IOException ignore) {
                 //ignore
             }
         }
@@ -225,7 +225,7 @@ public enum PEM {
         }
 
         public static PEMObjectType fromBeginMarker(final String beginMarker) {
-            for (PEMObjectType e : PEMObjectType.values()) {
+            for (final PEMObjectType e : PEMObjectType.values()) {
                 if (e.getBeginMarker().equals(beginMarker)) {
                     return e;
                 }

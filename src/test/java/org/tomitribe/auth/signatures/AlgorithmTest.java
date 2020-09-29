@@ -161,7 +161,7 @@ public class AlgorithmTest extends Assert {
     @Test
     public void getSigningAlgorithm() throws Exception {
         for (final SigningAlgorithm algorithm : SigningAlgorithm.values()) {
-            SigningAlgorithm s = SigningAlgorithm.get(algorithm.getAlgorithmName());
+            final SigningAlgorithm s = SigningAlgorithm.get(algorithm.getAlgorithmName());
             assertEquals(algorithm, s);
         }
     }
