@@ -96,7 +96,7 @@ public class Signature {
 
     /**
      * OPTIONAL.  The `parameterSpec` is used to specify the cryptographic
-     * parameters. Some cryptographic algorithm such as RSASSA-PSS 
+     * parameters. Some cryptographic algorithm such as RSASSA-PSS
      * require parameters.
      */
     private final AlgorithmParameterSpec parameterSpec;
@@ -164,6 +164,26 @@ public class Signature {
     private static SigningAlgorithm getSigningAlgorithm(final String scheme) {
         if (scheme == null) throw new IllegalArgumentException("Signing scheme cannot be null");
         return SigningAlgorithm.get(scheme);
+    }
+
+    @Deprecated
+    public Signature(final String keyId, final String algorithm, final String signature, final String... headers) {
+        this(keyId, getAlgorithm(algorithm), signature, headers);
+    }
+
+    @Deprecated
+    public Signature(final String keyId, final Algorithm algorithm, final String signature, final String... headers) {
+        this(keyId, algorithm, signature, Arrays.asList(headers));
+    }
+
+    @Deprecated
+    public Signature(final String keyId, final String algorithm, final String signature, final List<String> headers) {
+        this(keyId, getAlgorithm(algorithm), signature, headers);
+    }
+
+    @Deprecated
+    public Signature(final String keyId, final Algorithm algorithm, final String signature, final List<String> headers) {
+        this(keyId, null, algorithm, null, signature, headers, null, null, null);
     }
 
     public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
@@ -511,6 +531,11 @@ public class Signature {
             throw new UnparsableSignatureException(authorization, e);
         }
     }
+
+    public static Signature fromString(String authorization) {
+        return fromString(authorization, null);
+    }
+
 
     private static String normalize(String authorization) {
         final String start = "signature ";
