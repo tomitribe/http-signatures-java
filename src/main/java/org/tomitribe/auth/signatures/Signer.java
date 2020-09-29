@@ -86,13 +86,13 @@ public class Signer {
 
     /**
      * Create and return a HTTP signature object.
-     * 
+     *
      * @param method The HTTP method.
      * @param uri The path and query of the request target of the message.
      *            The value must already be encoded exactly as it will be sent in the
      *            request line of the HTTP message. No URL encoding is performed by this method.
      * @param headers The HTTP headers.
-     * 
+     *
      * @return a Signature object containing the signed message.
      */
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
@@ -110,13 +110,13 @@ public class Signer {
         final String signedAndEncodedString = new String(encoded, "UTF-8");
 
         return new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
-                             signature.getAlgorithm(), signature.getParameterSpec(),
-                             signedAndEncodedString, signature.getHeaders(), null, created, expires);
+                signature.getAlgorithm(), signature.getParameterSpec(),
+                signedAndEncodedString, signature.getHeaders(), null, created, expires);
     }
 
     /**
      * Create and return the string which is used as input for the cryptographic signature.
-     * 
+     *
      * @param method The HTTP method.
      * @param uri The path and query of the request target of the message.
      *            The value must already be encoded exactly as it will be sent in the
@@ -128,13 +128,13 @@ public class Signer {
      * @throws IOException when an exception occurs while creating the signing string.
      */
     public String createSigningString(final String method, final String uri, final Map<String, String> headers,
-            Long created, Long expires) throws IOException {
+                                      Long created, Long expires) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers, created, expires);
     }
 
     /**
      * Create and return the string which is used as input for the cryptographic signature.
-     * 
+     *
      * @param method The HTTP method.
      * @param uri The URI path and query parameters.
      * @param headers The HTTP headers.
@@ -143,7 +143,7 @@ public class Signer {
      */
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers,
-            signature.getSignatureCreationTimeMilliseconds(), signature.getSignatureExpirationTimeMilliseconds());
+                signature.getSignatureCreationTimeMilliseconds(), signature.getSignatureExpirationTimeMilliseconds());
     }
 
     private interface Sign {

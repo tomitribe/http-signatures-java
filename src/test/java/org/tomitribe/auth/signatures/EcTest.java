@@ -73,13 +73,13 @@ public class EcTest extends Assert {
         final Algorithm algorithm = Algorithm.ECDSA_SHA1;
 
         assertSignature(algorithm, "MEUCICRsOW+Ej5aesqMvfF4V9r7C9" +
-                "OzTWX5ZNybszCZozb3DAiEAkKEhBvuwiAunI5hA/TlDrVMk8" +
-                "ujrGN83VWDnqXSmGH8=",
+                        "OzTWX5ZNybszCZozb3DAiEAkKEhBvuwiAunI5hA/TlDrVMk8" +
+                        "ujrGN83VWDnqXSmGH8=",
                 "date");
 
         assertSignature(algorithm, "MEQCIDsx+SKkBXkgd4p0Z5RNXi7C6" +
-                "irHRmJIgRQe67zwmLNLAiB0HVrjaqaxWjFNyIUWkg3FlKa08" +
-                "q0tvNwJQzVWDmoakg==",
+                        "irHRmJIgRQe67zwmLNLAiB0HVrjaqaxWjFNyIUWkg3FlKa08" +
+                        "q0tvNwJQzVWDmoakg==",
                 "(request-target)", "host", "date");
     }
 
@@ -89,13 +89,13 @@ public class EcTest extends Assert {
         final Algorithm algorithm = Algorithm.ECDSA_SHA256;
 
         assertSignature(algorithm, "MEYCIQCM1tbbIk0looNj8v3+8N6H0" +
-                "z1v5glKM5PuF4VDOZEnUgIhAOrhZzpfcWwpFFGaexRPpDW4r" +
-                "zvEAgFpKFeSo+W09CUt",
+                        "z1v5glKM5PuF4VDOZEnUgIhAOrhZzpfcWwpFFGaexRPpDW4r" +
+                        "zvEAgFpKFeSo+W09CUt",
                 "date");
 
         assertSignature(algorithm, "MEUCIAbJDay2s2c22GN3B39xqtsTJ" +
-                "9yXKIOVriDivegH3UFaAiEAw5cJdN5h6znVw8kH7CD93mOQM" +
-                "L63p3baeAr/T4BbYXQ=",
+                        "9yXKIOVriDivegH3UFaAiEAw5cJdN5h6znVw8kH7CD93mOQM" +
+                        "L63p3baeAr/T4BbYXQ=",
                 "(request-target)", "host", "date");
     }
 
@@ -105,13 +105,13 @@ public class EcTest extends Assert {
         final Algorithm algorithm = Algorithm.ECDSA_SHA384;
 
         assertSignature(algorithm, "MEUCIQDAZTnleHTG+Ev2qzrmRauZr" +
-                "irDJK9gIYImMzMtnicFZQIgXh80xV8JYkNmnH6SfxgGcnbxp" +
-                "FwHGREE2eTONtWuTvQ="
+                        "irDJK9gIYImMzMtnicFZQIgXh80xV8JYkNmnH6SfxgGcnbxp" +
+                        "FwHGREE2eTONtWuTvQ="
                 , "date");
 
         assertSignature(algorithm, "MEUCIQCMm5SnD+oZRlTzs3PoTEIQd" +
-                "gcZ0qHtG7iftbHJE2S0TgIgf0RVZvOUfAxEJI0WEcUZMzi0N" +
-                "n2h6PCxxI1sQ+29lpI="
+                        "gcZ0qHtG7iftbHJE2S0TgIgf0RVZvOUfAxEJI0WEcUZMzi0N" +
+                        "n2h6PCxxI1sQ+29lpI="
                 , "(request-target)", "host", "date");
     }
 
@@ -120,13 +120,13 @@ public class EcTest extends Assert {
         final Algorithm algorithm = Algorithm.ECDSA_SHA512;
 
         assertSignature(algorithm, "MEQCIG53Je1U1Tk7jeTJN9BVpbTwK" +
-                "yDk3FyJsMH6MUQAzws2AiAN9BQVnb7sjTxOZKZVf+rb3TepU" +
-                "dEhZtyGsJMf4WGcWQ=="
+                        "yDk3FyJsMH6MUQAzws2AiAN9BQVnb7sjTxOZKZVf+rb3TepU" +
+                        "dEhZtyGsJMf4WGcWQ=="
                 , "date");
 
         assertSignature(algorithm, "MEQCIGtGuZGma1YR0hc1rCHnNCb1v" +
-                "IpuN89r25wWqgPTV3v5AiBsQPeh8dUCirt/pCShTkbKVqo6l" +
-                "S1AweWe4EMi3x7Ung=="
+                        "IpuN89r25wWqgPTV3v5AiBsQPeh8dUCirt/pCShTkbKVqo6l" +
+                        "S1AweWe4EMi3x7Ung=="
                 , "(request-target)", "host", "date");
     }
 

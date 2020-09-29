@@ -19,7 +19,37 @@ package org.tomitribe.auth.signatures;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.tomitribe.auth.signatures.Algorithm.*;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA224;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA3_256;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA3_384;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA3_512;
+import static org.tomitribe.auth.signatures.Algorithm.DSA_SHA512;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA256_P1363;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA384_P1363;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA3_256;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA3_384;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA3_512;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA512;
+import static org.tomitribe.auth.signatures.Algorithm.ECDSA_SHA512_P1363;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA224;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.HMAC_SHA512;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_PSS;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA1;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA256;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA384;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA3_256;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA3_384;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA3_512;
+import static org.tomitribe.auth.signatures.Algorithm.RSA_SHA512;
 
 public class AlgorithmTest extends Assert {
 
@@ -134,5 +164,5 @@ public class AlgorithmTest extends Assert {
             SigningAlgorithm s = SigningAlgorithm.get(algorithm.getAlgorithmName());
             assertEquals(algorithm, s);
         }
-    }    
+    }
 }

@@ -136,10 +136,10 @@ public enum PEM {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         try {
             final List<PEMObject> pemContents = new ArrayList<PEMObject>();
-        /*
-         * State of reading: set to true if reading content between a
-         * begin-marker and end-marker; false otherwise.
-         */
+            /*
+             * State of reading: set to true if reading content between a
+             * begin-marker and end-marker; false otherwise.
+             */
             boolean readingContent = false;
             String beginMarker = null;
             String endMarker = null;
@@ -226,7 +226,7 @@ public enum PEM {
 
         public static PEMObjectType fromBeginMarker(final String beginMarker) {
             for (PEMObjectType e : PEMObjectType.values()) {
-                if (e.getBeginMarker().equals(beginMarker)){
+                if (e.getBeginMarker().equals(beginMarker)) {
                     return e;
                 }
             }

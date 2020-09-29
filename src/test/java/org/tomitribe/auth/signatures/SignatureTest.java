@@ -174,7 +174,7 @@ public class SignatureTest {
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
         Signature.fromString(authorization, null);
     }
-    
+
     /**
      * Invalid algorithm field, the value must be a double-quoted string.
      */
@@ -194,16 +194,16 @@ public class SignatureTest {
                 ",signature=1234";
         Signature.fromString(authorization, null);
     }
-    
+
     /**
      * Invalid max validity, it cannot be a negative value.
      */
     @Test(expected = IllegalArgumentException.class)
     public void maxValidityNegative() throws Exception {
         new Signature("hmac-key-1",
-            SigningAlgorithm.HS2019, 
-            Algorithm.HMAC_SHA256, null,
-            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), -1L);
+                SigningAlgorithm.HS2019,
+                Algorithm.HMAC_SHA256, null,
+                "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), -1L);
     }
 
     /**
@@ -212,9 +212,9 @@ public class SignatureTest {
     @Test(expected = IllegalArgumentException.class)
     public void maxValidityZeroValue() throws Exception {
         new Signature("hmac-key-1",
-            SigningAlgorithm.HS2019, 
-            Algorithm.HMAC_SHA256, null,
-            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 0L);
+                SigningAlgorithm.HS2019,
+                Algorithm.HMAC_SHA256, null,
+                "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 0L);
     }
 
     /**
@@ -223,9 +223,9 @@ public class SignatureTest {
     @Test
     public void maxValidity() throws Exception {
         new Signature("hmac-key-1",
-            SigningAlgorithm.HS2019, 
-            Algorithm.HMAC_SHA256, null,
-            "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 123L);
+                SigningAlgorithm.HS2019,
+                Algorithm.HMAC_SHA256, null,
+                "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"), 123L);
     }
 
 
@@ -352,14 +352,14 @@ public class SignatureTest {
         assertEquals("hmac-key-1", signature.getKeyId());
         assertEquals("hmac-sha256", signature.getAlgorithm().toString());
         assertEquals("Base64(HMAC-SHA256(signing string))", signature.getSignature());
-        assertEquals(
+        assertEquals("" +
                 "(request-target)\n" +
                 "(created)\n" +
                 "(expires)\n" +
                 "one\n" +
                 "two", join("\n", signature.getHeaders()));
-        assertEquals((Long)created, signature.getSignatureCreationTimeMilliseconds());
-        assertEquals((Long)expires, signature.getSignatureExpirationTimeMilliseconds());
+        assertEquals((Long) created, signature.getSignatureCreationTimeMilliseconds());
+        assertEquals((Long) expires, signature.getSignatureExpirationTimeMilliseconds());
         signature.verifySignatureValidityDates();
     }
 

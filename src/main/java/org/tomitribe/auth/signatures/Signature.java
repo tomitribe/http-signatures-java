@@ -16,6 +16,9 @@
  */
 package org.tomitribe.auth.signatures;
 
+import java.security.spec.AlgorithmParameterSpec;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.security.spec.AlgorithmParameterSpec;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
 public class Signature {
 
@@ -46,13 +46,13 @@ public class Signature {
      * values for this parameter can be found in the Signature Algorithms
      * registry located at http://www.iana.org/assignments/signature-
      * algorithms and MUST NOT be marked "deprecated".
-     * 
+     *
      * Verifiers MUST determine the signature's Algorithm from the keyId parameter
      * rather than from algorithm. If algorithm is provided and differs from or
      * is incompatible with the algorithm or key material identified by keyId
      * (for example, algorithm has a value of rsa-sha256 but keyId identifies
      * an EdDSA key), then implementations MUST produce an error.
-     * 
+     *
      * https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
      */
     private final SigningAlgorithm signingAlgorithm;
@@ -74,7 +74,7 @@ public class Signature {
      * signed with the key associated with `keyId` and the algorithm
      * corresponding to `algorithm`.  The `signature` parameter is then set
      * to the base 64 encoding of the signature.
-     * 
+     *
      * Signing: this field is calculated from the input data.
      * Verification: this field is parsed from the signature field in the
      * Authorization header.
@@ -106,7 +106,7 @@ public class Signature {
      * This field is applicable when the signed headers include '(expires)'.
      * In that case, the value of the '(expires)' field is calculated by adding
      * maxSignatureValidityDuration to the timestamp of the signature creation time.
-     * 
+     *
      * This field is used to derive the signature expiration time when a cryptographic signature
      * is generated.
      */
@@ -114,7 +114,7 @@ public class Signature {
 
     /**
      * The signature's Creation Time, in milliseconds since the epoch.
-     * 
+     *
      * This field is set at the time the cryptographic signature is generated, or when
      * the 'Authorization' header is parsed.
      */
@@ -122,7 +122,7 @@ public class Signature {
 
     /**
      * The signature's Expiration Time, in milliseconds since the epoch.
-     * 
+     *
      * This field is set at the time the cryptographic signature is generated, or when
      * the 'Authorization' header is parsed.
      */
@@ -144,7 +144,7 @@ public class Signature {
 
     /**
      * Construct a signature configuration instance with the specified keyId, algorithm and HTTP headers.
-     * 
+     *
      * @param keyId An opaque string that the server can use to look up the component they need to validate the signature.
      * @param signingAlgorithm An identifier for the HTTP Signature algorithm.
      *  This should be "hs2019" except for legacy applications that use an older version of the draft HTTP signature specification.
@@ -167,25 +167,25 @@ public class Signature {
     }
 
     public Signature(final String keyId, final String signingAlgorithm, final String algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+                     final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         this(keyId, getSigningAlgorithm(signingAlgorithm), getAlgorithm(algorithm), parameterSpec, signature, headers);
     }
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
+                     final AlgorithmParameterSpec parameterSpec, final String signature, final List<String> headers) {
         this(keyId, signingAlgorithm, algorithm, parameterSpec, signature, headers, null);
     }
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature,
-                        final List<String> headers, final Long maxSignatureValidityDuration) {
+                     final AlgorithmParameterSpec parameterSpec, final String signature,
+                     final List<String> headers, final Long maxSignatureValidityDuration) {
         this(keyId, signingAlgorithm, algorithm, parameterSpec, signature, headers, maxSignatureValidityDuration, null, null);
     }
 
     public Signature(final String keyId, final SigningAlgorithm signingAlgorithm, final Algorithm algorithm,
-                        final AlgorithmParameterSpec parameterSpec, final String signature,
-                        final List<String> headers, final Long maxSignatureValidityDuration,
-                        Long signatureCreatedTime, Long signatureExpiresTime) {
+                     final AlgorithmParameterSpec parameterSpec, final String signature,
+                     final List<String> headers, final Long maxSignatureValidityDuration,
+                     Long signatureCreatedTime, Long signatureExpiresTime) {
         if (keyId == null || keyId.trim().isEmpty()) {
             throw new IllegalArgumentException("keyId is required.");
         }
@@ -193,16 +193,16 @@ public class Signature {
             throw new IllegalArgumentException("algorithm is required.");
         }
         if (signingAlgorithm != null &&
-            signingAlgorithm.getSupportedAlgorithms() != null &&
-            !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
+                signingAlgorithm.getSupportedAlgorithms() != null &&
+                !signingAlgorithm.getSupportedAlgorithms().contains(algorithm)) {
             throw new IllegalArgumentException("Signing algorithm " + signingAlgorithm.getAlgorithmName() +
-                                                " is not compatible with " + algorithm.getPortableName());
+                    " is not compatible with " + algorithm.getPortableName());
         }
 
         this.keyId = keyId;
         this.signingAlgorithm = signingAlgorithm;
         this.algorithm = algorithm;
-        if (maxSignatureValidityDuration != null && maxSignatureValidityDuration <=0) {
+        if (maxSignatureValidityDuration != null && maxSignatureValidityDuration <= 0) {
             throw new IllegalArgumentException("Signature max validity must be a positive number");
         }
         this.maxSignatureValidityDuration = maxSignatureValidityDuration;
@@ -225,7 +225,7 @@ public class Signature {
 
     /**
      * Returns the signature creation time.
-     * 
+     *
      * @return the signature creation time.
      */
     public Date getSignatureCreation() {
@@ -235,7 +235,7 @@ public class Signature {
 
     /**
      * Returns the signature creation time in milliseconds since the epoch.
-     * 
+     *
      * @return the signature creation time in milliseconds since the epoch.
      */
     public Long getSignatureCreationTimeMilliseconds() {
@@ -244,7 +244,7 @@ public class Signature {
 
     /**
      * Returns the signature max validity duration, in milliseconds.
-     * 
+     *
      * @return the signature max validity duration, in milliseconds.
      */
     public Long getSignatureMaxValidityMilliseconds() {
@@ -253,7 +253,7 @@ public class Signature {
 
     /**
      * Returns the signature expiration time.
-     * 
+     *
      * @return the signature expiration time.
      */
     public Date getSignatureExpiration() {
@@ -263,7 +263,7 @@ public class Signature {
 
     /**
      * Returns the signature expiration time in milliseconds since the epoch.
-     * 
+     *
      * @return the signature expiration time in milliseconds since the epoch.
      */
     public Long getSignatureExpirationTimeMilliseconds() {
@@ -284,7 +284,7 @@ public class Signature {
 
     /**
      * Returns the detailed implementation algorithm for HTTP signatures.
-     * 
+     *
      * @return the cryptographic algorithm.
      */
     public Algorithm getAlgorithm() {
@@ -294,7 +294,7 @@ public class Signature {
     /**
      * Returns the identifier for the HTTP Signature Algorithm, as registered
      * in the HTTP Signature Algorithms Registry.
-     * 
+     *
      * @return the identifier for the HTTP Signature Algorithm.
      */
     public SigningAlgorithm getSigningAlgorithm() {
@@ -303,7 +303,7 @@ public class Signature {
 
     /**
      * Returns the base-64 encoded value of the signature.
-     * 
+     *
      * @return the base-64 encoded value of the signature.
      */
     public String getSignature() {
@@ -312,7 +312,7 @@ public class Signature {
 
     /**
      * Returns the specification of cryptographic parameters.
-     * 
+     *
      * @return specification of cryptographic parameters.
      */
     public AlgorithmParameterSpec getParameterSpec() {
@@ -325,7 +325,7 @@ public class Signature {
 
     /**
      * Verify the signature is valid with regards to the (created) and (expires) fields.
-     * 
+     *
      * When the '(created)' field is present in the HTTP signature, the '(created)' field
      * represents the date when the signature has been created.
      * When the '(expires)' field is present in the HTTP signature, the '(expires)' field
@@ -342,15 +342,15 @@ public class Signature {
 
     /**
      * Constructs a Signature object by parsing the 'Authorization' header.
-     * 
+     *
      * As stated in the HTTP signature specification, the value of the algorithm parameter in
      * the 'Authorization' header should be set to generic identifier. The detailed algorithm
      * should be derived from the keyId. Hence it is not possible to determine the detailed
      * algorithm by inspecting the signature data.
-     * 
+     *
      * @param authorization The value of the HTTP 'Authorization' header containing the signature data.
      * @param algorithm The detailed cryptographic algorithm for the HTTP signature.
-     * 
+     *
      * @return The Signature object.
      */
     public static Signature fromString(String authorization, Algorithm algorithm) {
@@ -377,27 +377,36 @@ public class Signature {
             }
 
             /** Returns true if the field is a string */
-            boolean isString() { return !isNumber; }
+            boolean isString() {
+                return !isNumber;
+            }
+
             /** Returns true if the field is a number */
-            boolean isNumber() { return isNumber; }
+            boolean isNumber() {
+                return isNumber;
+            }
+
             /** Returns true if the field is an integer value */
-            boolean isInteger() { return value instanceof Long; }
+            boolean isInteger() {
+                return value instanceof Long;
+            }
 
             /** Returns the field as a string, or null if the field is not a string. */
             String getValueAsString() {
                 if (!isString()) return null;
-                return (String)value;
+                return (String) value;
             }
 
             /** Returns the field as a long value, or null if the field is not a integer number. */
             Long getValueAsLong() {
                 if (!isInteger()) return null;
-                return ((Number)value).longValue();
+                return ((Number) value).longValue();
             }
+
             /** Returns the field as a double value, or null if the field is not a number. */
             Double getValueAsDouble() {
                 if (!isNumber()) return null;
-                return ((Number)value).doubleValue();
+                return ((Number) value).doubleValue();
             }
 
         }
@@ -464,7 +473,7 @@ public class Signature {
                 if (!fieldValue.isNumber()) {
                     throw new InvalidExpiresFieldException("Field must be a number");
                 }
-                expires = (long)(fieldValue.getValueAsDouble() * 1000L);
+                expires = (long) (fieldValue.getValueAsDouble() * 1000L);
             }
             SigningAlgorithm parsedSigningAlgorithm = null;
             try {

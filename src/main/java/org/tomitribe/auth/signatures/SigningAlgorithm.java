@@ -16,26 +16,26 @@
  */
 package org.tomitribe.auth.signatures;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The algorithm parameter contains the name of the signature's Algorithm,
  * as registered in the HTTP Signature Algorithms Registry defined by this document.
- * 
+ *
  * The signature verification is based on the signature's algorithm from the keyId
  * parameter rather than from this algorithm.
  * If algorithm is provided and differs from or is incompatible with the algorithm
  * or key material identified by keyId (for example, algorithm has a value of
  * rsa-sha256 but keyId identifies an EdDSA key), then a verification exception is
  * raised.
- * 
+ *
  * The default value for this parameter should be "hs2019".
- * 
+ *
  * @see <a href="https://www.ietf.org/id/draft-ietf-httpbis-message-signatures-00.html">https://www.ietf.org/id/draft-ietf-httpbis-message-signatures-00.html</a>
  */
 public enum SigningAlgorithm {
@@ -43,7 +43,7 @@ public enum SigningAlgorithm {
     /**
      * The actual cryptographic algorithm is derived from metadata associated
      * with keyId.
-     * 
+     *
      * Recommend support for:
      *   RSASSA-PSS [RFC8017] using SHA-512 [RFC6234]
      *   HMAC [RFC2104] using SHA-512 [RFC6234]
@@ -102,7 +102,7 @@ public enum SigningAlgorithm {
 
     /**
      * Returns the SigningAlgorithm with the specified name.
-     * 
+     *
      * @param name the name of the signing algorithm.
      * @return the SigningAlgorithm
      */

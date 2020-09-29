@@ -28,7 +28,7 @@ public enum Signatures {
     /**
      * Create a canonicalized string representation of the HTTP request. It is used
      * as the input to calculate the signature of the HTTP request.
-     * 
+     *
      * @param required The list of headers that should be included in the HTTP signature.
      * @param method The HTTP method.
      * @param uri The HTTP request URI.
@@ -41,10 +41,10 @@ public enum Signatures {
     /**
      * Create a canonicalized string representation of the HTTP request. It is used
      * as the input to calculate the signature of the HTTP request.
-     * 
+     *
      * The provided method, path and query values are used to generate the optional
      * (request-target) field.
-     * 
+     *
      * @param required The list of headers that should be included in the HTTP signature.
      * @param method The HTTP method.
      * @param uri The path and query of the request target of the message.
@@ -55,7 +55,7 @@ public enum Signatures {
      * @param signatureExpiryTime The signature expiration time in milliseconds since the epoch.
      */
     public static String createSigningString(final List<String> required, String method, final String uri, Map<String, String> headers,
-            Long signatureCreationTime, Long signatureExpiryTime) {
+                                             Long signatureCreationTime, Long signatureExpiryTime) {
         headers = lowercase(headers);
 
         final List<String> list = new ArrayList<String>(required.size());

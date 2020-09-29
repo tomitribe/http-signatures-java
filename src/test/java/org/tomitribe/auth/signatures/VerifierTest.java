@@ -124,9 +124,9 @@ public class VerifierTest extends Assert {
         long maxValidity = 1 * 1000L;
 
         final Signature inputSignature = new Signature("hmac-key-1",
-            SigningAlgorithm.HS2019, Algorithm.HMAC_SHA256, null, null,
-            Arrays.asList("content-length", "host", "date", "(request-target)", "(created)", "(expires)"),
-            maxValidity, System.currentTimeMillis(), System.currentTimeMillis() + maxValidity);
+                SigningAlgorithm.HS2019, Algorithm.HMAC_SHA256, null, null,
+                Arrays.asList("content-length", "host", "date", "(request-target)", "(created)", "(expires)"),
+                maxValidity, System.currentTimeMillis(), System.currentTimeMillis() + maxValidity);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Signer signer = new Signer(key, inputSignature);
@@ -140,13 +140,13 @@ public class VerifierTest extends Assert {
         headers.put("Content-Length", "18");
 
         // Assert the Signing String
-        final String expectedSigningStringRegex =
-            "content-length: 18\n" +
-            "host: example.org\n" +
-            "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
-            "\\(request-target\\): get \\/foo\\/Bar\n" +
-            "\\(created\\): [\\d]+\n" +
-            "\\(expires\\): [\\d]+\\.?[\\d]*";
+        final String expectedSigningStringRegex = "" +
+                "content-length: 18\n" +
+                "host: example.org\n" +
+                "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
+                "\\(request-target\\): get \\/foo\\/Bar\n" +
+                "\\(created\\): [\\d]+\n" +
+                "\\(expires\\): [\\d]+\\.?[\\d]*";
         Pattern regex = Pattern.compile(expectedSigningStringRegex, Pattern.MULTILINE);
         final String signingString = signer.createSigningString("GET", "/foo/Bar", headers);
         assertTrue(regex.matcher(signingString).find());
@@ -385,9 +385,9 @@ public class VerifierTest extends Assert {
 
             final String string = verifier.createSigningString(method, uri, headers);
             assertEquals("content-length: 18\n" +
-                    "host: example.org\n" +
-                    "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
-                    "(request-target): get /foo/Bar"
+                            "host: example.org\n" +
+                            "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
+                            "(request-target): get /foo/Bar"
                     , string);
         }
     }

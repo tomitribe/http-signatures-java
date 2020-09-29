@@ -22,12 +22,12 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.PSSParameterSpec;
-import java.security.spec.MGF1ParameterSpec;
 
 public class RsaTest extends Assert {
 
@@ -82,15 +82,15 @@ public class RsaTest extends Assert {
         final Algorithm algorithm = Algorithm.RSA_SHA1;
 
         assertSignature(algorithm, "kcX/cWMRQEjUPfF6AO7ANZ/eQkpRd" +
-                "/4+dr3g1B5HZBn3vRDxGFbDRY19HeJUUlBAgmvolRwLlrVkz" +
-                "LOmYdug6Ff01UUl6gX+TksGbsxagbNUNoEx0hrX3+8Jbd+x8" +
-                "gx9gZxA7DwXww1u3bGrmChnfkdOofY52KhUllUox4mmBeI=",
+                        "/4+dr3g1B5HZBn3vRDxGFbDRY19HeJUUlBAgmvolRwLlrVkz" +
+                        "LOmYdug6Ff01UUl6gX+TksGbsxagbNUNoEx0hrX3+8Jbd+x8" +
+                        "gx9gZxA7DwXww1u3bGrmChnfkdOofY52KhUllUox4mmBeI=",
                 "date");
 
         assertSignature(algorithm, "F6g4qdBSHBcWo1iMsHetQU9TnPF39" +
-                "naVHQogAhgvY6wh0/cdkquN4D6CInTyEHtMuv7xlOt0yBaVt" +
-                "brrNP5JZKquYMW2JC3FXdtIiaYWhLUb/Nmb+JPr6C8AnxMzc" +
-                "fNfuOZFn3X7ekA32qbfnYr7loHqpEGUr+G1NYsckEXdlM4=",
+                        "naVHQogAhgvY6wh0/cdkquN4D6CInTyEHtMuv7xlOt0yBaVt" +
+                        "brrNP5JZKquYMW2JC3FXdtIiaYWhLUb/Nmb+JPr6C8AnxMzc" +
+                        "fNfuOZFn3X7ekA32qbfnYr7loHqpEGUr+G1NYsckEXdlM4=",
                 "(request-target)", "host", "date");
     }
 
@@ -100,15 +100,15 @@ public class RsaTest extends Assert {
         final Algorithm algorithm = Algorithm.RSA_SHA256;
 
         assertSignature(algorithm, "ATp0r26dbMIxOopqw0OfABDT7CKMI" +
-                "oENumuruOtarj8n/97Q3htHFYpH8yOSQk3Z5zh8UxUym6FYT" +
-                "b5+A0Nz3NRsXJibnYi7brE/4tx5But9kkFGzG+xpUmimN4c3" +
-                "TMN7OFH//+r8hBf7BT9/GmHDUVZT2JzWGLZES2xDOUuMtA=",
+                        "oENumuruOtarj8n/97Q3htHFYpH8yOSQk3Z5zh8UxUym6FYT" +
+                        "b5+A0Nz3NRsXJibnYi7brE/4tx5But9kkFGzG+xpUmimN4c3" +
+                        "TMN7OFH//+r8hBf7BT9/GmHDUVZT2JzWGLZES2xDOUuMtA=",
                 "date");
 
         assertSignature(algorithm, "DT9vcDFbit2ahGZowjUzzih+sVpKM" +
-                "IPZrXy1DMljImYNSJ3UEweTMfF3MUFjdNwYH59IDJoB+QTg3" +
-                "Rpm5xLvMWD7tql/Ng/NCJs8gYSNjOQidArEpWp88c5IQPDXn" +
-                "1lnJMU6dNXZNxc8Yqj+mIYhwHpKEKTqnvEtnCvB/6y/dIM=",
+                        "IPZrXy1DMljImYNSJ3UEweTMfF3MUFjdNwYH59IDJoB+QTg3" +
+                        "Rpm5xLvMWD7tql/Ng/NCJs8gYSNjOQidArEpWp88c5IQPDXn" +
+                        "1lnJMU6dNXZNxc8Yqj+mIYhwHpKEKTqnvEtnCvB/6y/dIM=",
                 "(request-target)", "host", "date");
     }
 
@@ -118,15 +118,15 @@ public class RsaTest extends Assert {
         final Algorithm algorithm = Algorithm.RSA_SHA384;
 
         assertSignature(algorithm, "AYtR6NQy+59Ta3X1GYNlfOzJo4Sg+" +
-                "aB+ulDkR6Q2/8egvByRx5l0+t/2abAaFHf33SDojHYWPlpuj" +
-                "HM26ExZPFXeYzG9sRctKD7XKrA/F6LRXEm1RXLFvfvLXQw4P" +
-                "4HE1PMH+gCw2E+6IoTnbcimQtZ82SkF1uDRtLDhR6iqpFI="
+                        "aB+ulDkR6Q2/8egvByRx5l0+t/2abAaFHf33SDojHYWPlpuj" +
+                        "HM26ExZPFXeYzG9sRctKD7XKrA/F6LRXEm1RXLFvfvLXQw4P" +
+                        "4HE1PMH+gCw2E+6IoTnbcimQtZ82SkF1uDRtLDhR6iqpFI="
                 , "date");
 
         assertSignature(algorithm, "mRaP0Z5lh9XKGDahdsomoKR9Kjsj9" +
-                "a/lgUEpZDQpvSZq5NhODEjmQh1qRn6Sx/c+AFl67yzDYAMXx" +
-                "9h49ZOpKpuj4FGrz5/DIK7cdn9wXBKqDYgDfwOF9O5jNOE1r" +
-                "9zbORTH0XxA8WE9H/MXoOrDIH1NjM5o9I4ErT4zKnD5OsQ="
+                        "a/lgUEpZDQpvSZq5NhODEjmQh1qRn6Sx/c+AFl67yzDYAMXx" +
+                        "9h49ZOpKpuj4FGrz5/DIK7cdn9wXBKqDYgDfwOF9O5jNOE1r" +
+                        "9zbORTH0XxA8WE9H/MXoOrDIH1NjM5o9I4ErT4zKnD5OsQ="
                 , "(request-target)", "host", "date");
     }
 
@@ -135,15 +135,15 @@ public class RsaTest extends Assert {
         final Algorithm algorithm = Algorithm.RSA_SHA512;
 
         assertSignature(algorithm, "IItboA8OJgL8WSAnJa8MND04s9j7d" +
-                "B6IJIBVpOGJph8Tmkc5yUAYjvO/UQUKytRBe5CSv2GLfTAmE" +
-                "7SuRgGGMwdQZubNJqRCiVPKBpuA47lXrKgC/wB0QAMkPHI6c" +
-                "PllBZRixmjZuU9mIbuLjXMHR+v/DZwOHT9k8x0ILUq2rKE="
+                        "B6IJIBVpOGJph8Tmkc5yUAYjvO/UQUKytRBe5CSv2GLfTAmE" +
+                        "7SuRgGGMwdQZubNJqRCiVPKBpuA47lXrKgC/wB0QAMkPHI6c" +
+                        "PllBZRixmjZuU9mIbuLjXMHR+v/DZwOHT9k8x0ILUq2rKE="
                 , "date");
 
         assertSignature(algorithm, "ggIa4bcI7q377gNoQ7qVYxTA4pEOl" +
-                "xlFzRtiQV0SdPam4sK58SFO9EtzE0P1zVTymTnsSRChmFU2p" +
-                "n+R9VzkAhQ+yEbTqzu+mgHc4P1L5IeeXQ5aAmGENfkRbm2vd" +
-                "OZzP5j6ruB+SJXIlhnaum2lsuyytSS0m/GkWvFJVZFu33M="
+                        "xlFzRtiQV0SdPam4sK58SFO9EtzE0P1zVTymTnsSRChmFU2p" +
+                        "n+R9VzkAhQ+yEbTqzu+mgHc4P1L5IeeXQ5aAmGENfkRbm2vd" +
+                        "OZzP5j6ruB+SJXIlhnaum2lsuyytSS0m/GkWvFJVZFu33M="
                 , "(request-target)", "host", "date");
     }
 

@@ -40,7 +40,7 @@ public class Verifier {
 
     /**
      * Constructs a verifier object with the specified key and signature object.
-     * 
+     *
      * @param key The key used to verify the signature.
      * @param signature The signature object.
      */
@@ -91,8 +91,8 @@ public class Verifier {
 
     public String createSigningString(final String method, final String uri, final Map<String, String> headers) throws IOException {
         return Signatures.createSigningString(signature.getHeaders(), method, uri, headers,
-            signature.getSignatureCreationTimeMilliseconds(),
-            signature.getSignatureExpirationTimeMilliseconds());
+                signature.getSignatureCreationTimeMilliseconds(),
+                signature.getSignatureExpirationTimeMilliseconds());
     }
 
     private interface Verify {
