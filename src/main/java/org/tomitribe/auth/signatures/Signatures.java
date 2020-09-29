@@ -35,7 +35,7 @@ public enum Signatures {
      * @param headers A map of header names to header values.
      */
     public static String createSigningString(final List<String> required, final String method, final String uri, final Map<String, String> headers) {
-        return createSigningString(required, method, uri, headers);
+        return createSigningString(required, method, uri, headers, null, null);
     }
 
     /**
