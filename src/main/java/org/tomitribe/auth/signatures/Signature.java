@@ -550,22 +550,35 @@ public class Signature {
 
     @Override
     public String toString() {
-        final Object alg;
+        return toString("Signature");
+    }
+
+    /**
+     * Returns the formatted signature parameters without any "Signature " prefix
+     */
+    public String toParamString() {
+        return toString(null);
+    }
+    
+    public String toString(final String prefix) {
         if (SigningAlgorithm.HS2019.equals(signingAlgorithm)) {
             // When the signing algorithm is set to 'hs2019', the value of the algorithm
             // field must be set to 'hs2019'. The specific crypto algorithm is not
             // serialized in the 'Authorization' header, the server must derive the value
             // from the keyId.
-            alg = signingAlgorithm;
+            return (prefix != null ? prefix + " " : "") +
+                    "keyId=\"" + keyId + '\"' +
+                    (signatureCreatedTime != null ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
+                    (signatureExpiresTime != null ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
+                    ",algorithm=\"" + signingAlgorithm + '\"' +
+                    ",headers=\"" + Join.join(" ", headers) + '\"' +
+                    ",signature=\"" + signature + '\"';
         } else {
-            alg = algorithm;
+            return (prefix != null ? prefix + " " : "") +
+                    "keyId=\"" + keyId + '\"' +
+                    ",algorithm=\"" + algorithm + '\"' +
+                    ",headers=\"" + Join.join(" ", headers) + '\"' +
+                    ",signature=\"" + signature + '\"';
         }
-        return "Signature " +
-                "keyId=\"" + keyId + '\"' +
-                (signatureCreatedTime != null ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
-                (signatureExpiresTime != null ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
-                ",algorithm=\"" + alg + '\"' +
-                ",headers=\"" + Join.join(" ", headers) + '\"' +
-                ",signature=\"" + signature + '\"';
     }
 }

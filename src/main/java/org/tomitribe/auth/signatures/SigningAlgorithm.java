@@ -53,16 +53,9 @@ public enum SigningAlgorithm {
     HS2019("hs2019", null),
 
     // Deprecated, SHA-1 is not secure.
-    // Use hs2019.
     RSA_SHA1("rsa-sha1", new HashSet<Algorithm>(Arrays.asList(Algorithm.RSA_SHA1))),
-    // Deprecated, specifying signature algorithm enables attack vector.
-    // Use hs2019.
     RSA_SHA256("rsa-sha256", new HashSet<Algorithm>(Arrays.asList(Algorithm.RSA_SHA256))),
-    // Deprecated, specifying signature algorithm enables attack vector.
-    // Use hs2019.
     ECDSA_SHA256("ecdsa-sha256", new HashSet<Algorithm>(Arrays.asList(Algorithm.ECDSA_SHA256))),
-    // Deprecated, specifying signature algorithm enables attack vector.
-    // Use hs2019.
     HMAC_SHA256("hmac-sha256", new HashSet<Algorithm>(Arrays.asList(Algorithm.HMAC_SHA256))),
     ;
 

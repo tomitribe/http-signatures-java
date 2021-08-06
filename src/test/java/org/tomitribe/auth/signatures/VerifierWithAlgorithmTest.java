@@ -19,26 +19,28 @@ package org.tomitribe.auth.signatures;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.security.Provider;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-public class VerifierTest extends Assert {
+/**
+ * Original test cases based on pre-HS2019 format
+ */
+public class VerifierWithAlgorithmTest extends Assert {
 
     @Test(expected = IllegalStateException.class)
     public void validVerifier() {
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Verifier(key, signature);
     }
 
     @Test(expected = NullPointerException.class)
     public void nullKey() {
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
         new Verifier(null, signature);
     }
 
@@ -50,7 +52,7 @@ public class VerifierTest extends Assert {
 
     @Test(expected = UnsupportedAlgorithmException.class)
     public void unsupportedAlgorithm() {
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "should fail because of this", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Signature signature = new Signature("hmac-key-1", "should fail because of this", null, "content-length", "host", "date", "(request-target)");
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Verifier(key, signature);
     }
@@ -61,124 +63,9 @@ public class VerifierTest extends Assert {
             clear();
         }};
 
-        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, Arrays.asList("content-length", "host", "date", "(request-target)"));
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         new Verifier(key, signature, p);
-    }
-
-    /**
-     * Validates Signature.fromString() can be invoked with a specific algorithm.
-     * If the algorithm argument matches the 'algorithm' field in the Authorization header,
-     * no exception should be thrown.
-     * @throws Exception
-     */
-    @Test
-    public void testParseAuthorizationWithValidAlgorithm() throws Exception {
-        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-        final Signature signature = Signature.fromString(authorization, Algorithm.HMAC_SHA256);
-        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
-        final Verifier verifier = new Verifier(key, signature);
-
-        final String method = "GET";
-        final String uri = "/foo/Bar";
-        final Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Host", "example.org");
-        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
-        headers.put("Content-Type", "application/json");
-        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
-        headers.put("Accept", "*/*");
-        headers.put("Content-Length", "18");
-        final boolean verifies = verifier.verify(method, uri, headers);
-        assertTrue(verifies);
-    }
-
-    /**
-     * Validates Signature.fromString() can be invoked with a specific algorithm.
-     * If the algorithm argument does NOT match the 'algorithm' field in the Authorization header,
-     * an exception should be thrown.
-     * @throws Exception
-     */
-    @Test(expected = UnparsableSignatureException.class)
-    public void testParseAuthorizationWithConflictingAlgorithm() throws Exception {
-        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-        Signature.fromString(authorization, Algorithm.HMAC_SHA512);
-    }
-
-    /**
-     * Validates Signature.fromString() must have a non-null 'algorithm' argument when
-     * the 'algorithm' field in the HTTP 'Authorization' header is set to 'hs2019'.
-     * This is because the 'Authorization' header is not sufficient to identify the detailed
-     * cryptographic algorithm.
-     * @throws Exception
-     */
-    @Test(expected = UnparsableSignatureException.class)
-    public void testParseAuthorizationHs2019MissingAlgorithm() throws Exception {
-        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-        Signature.fromString(authorization, null);
-    }
-
-    @Test
-    public void testVerifyAndValidateDates() throws Exception {
-        // Create a signature with a short validation duration.
-        // If the signature is verified immediately, the validation should pass.
-        // If the signature is verified after the expiration time, the validation should fail.
-        final long maxValidity = 1 * 1000L;
-
-        final Signature inputSignature = new Signature("hmac-key-1",
-                SigningAlgorithm.HS2019, Algorithm.HMAC_SHA256, null, null,
-                Arrays.asList("content-length", "host", "date", "(request-target)", "(created)", "(expires)"),
-                maxValidity, System.currentTimeMillis(), System.currentTimeMillis() + maxValidity);
-
-        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
-        final Signer signer = new Signer(key, inputSignature);
-
-        final Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Host", "example.org");
-        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
-        headers.put("Content-Type", "application/json");
-        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
-        headers.put("Accept", "*/*");
-        headers.put("Content-Length", "18");
-
-        // Assert the Signing String
-        final String expectedSigningStringRegex = "" +
-                "content-length: 18\n" +
-                "host: example.org\n" +
-                "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
-                "\\(request-target\\): get \\/foo\\/Bar\n" +
-                "\\(created\\): [\\d]+\n" +
-                "\\(expires\\): [\\d]+\\.?[\\d]*";
-        final Pattern regex = Pattern.compile(expectedSigningStringRegex, Pattern.MULTILINE);
-        final String signingString = signer.createSigningString("GET", "/foo/Bar", headers);
-        assertTrue(regex.matcher(signingString).find());
-
-        // Assert the signature
-        final Signature signature = signer.sign("GET", "/foo/Bar", headers);
-
-        final String authorization = signature.toString();
-        assertTrue(authorization.contains("(created)"));
-        assertTrue(authorization.contains("(expires)"));
-        assertTrue(authorization.contains("created="));
-        assertTrue(authorization.contains("expires="));
-
-        // Assert the signature verification.
-        final Signature parsedSignature = Signature.fromString(authorization, Algorithm.HMAC_SHA256);
-        assertNotNull(parsedSignature.getSignatureCreationTimeMilliseconds());
-        assertNotNull(parsedSignature.getSignatureExpirationTimeMilliseconds());
-        assertNotNull(parsedSignature.getSignatureCreation());
-        assertNotNull(parsedSignature.getSignatureExpiration());
-
-        final Verifier verifier = new Verifier(key, parsedSignature);
-        final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
-        assertTrue(verifies);
-
-        // Sleep a bit, this will cause the signature to expire, then verify
-        // the signature again, this time it should fail.
-        Thread.sleep(maxValidity);
-        final Exception exception = assertThrows(InvalidExpiresFieldException.class, () -> {
-            verifier.verify("GET", "/foo/Bar", headers);
-        });
-        assertEquals("Signature has expired", exception.getMessage());
     }
 
     /**
@@ -193,7 +80,7 @@ public class VerifierTest extends Assert {
     public void testVerify() throws Exception {
 
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-        final Signature signature = Signature.fromString(authorization, null);
+        final Signature signature = Signature.fromString(authorization);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Verifier verifier = new Verifier(key, signature);
@@ -208,7 +95,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final boolean verifies = verifier.verify(method, uri, headers);
+            boolean verifies = verifier.verify(method, uri, headers);
             assertTrue(verifies);
         }
 
@@ -222,7 +109,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final boolean verifies = verifier.verify(method, uri, headers);
+            boolean verifies = verifier.verify(method, uri, headers);
             assertFalse(verifies);
         }
 
@@ -236,7 +123,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final boolean verifies = verifier.verify(method, uri, headers);
+            boolean verifies = verifier.verify(method, uri, headers);
             assertTrue(verifies);
         }
 
@@ -250,7 +137,7 @@ public class VerifierTest extends Assert {
             headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu8DBPE=");
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
-            final boolean verifies = verifier.verify(method, uri, headers);
+            boolean verifies = verifier.verify(method, uri, headers);
             assertFalse(verifies);
         }
     }
@@ -258,7 +145,7 @@ public class VerifierTest extends Assert {
     @Test
     public void defaultHeaderList() throws Exception {
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"date\",signature=\"WbB9VXuVdRt1LKQ5mDuT+tiaChn8R7WhdAWAY1lhKZQ=\"";
-        final Signature signature = Signature.fromString(authorization, null);
+        final Signature signature = Signature.fromString(authorization);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Verifier verifier = new Verifier(key, signature);
@@ -267,7 +154,7 @@ public class VerifierTest extends Assert {
             final Map<String, String> headers = new HashMap<String, String>();
             headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
 
-            final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+            boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
             assertTrue(verifies);
         }
 
@@ -279,7 +166,7 @@ public class VerifierTest extends Assert {
             headers.put("Accept", "*/*");
             headers.put("Content-Length", "18");
 
-            final boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
+            boolean verifies = verifier.verify("GET", "/foo/Bar", headers);
             assertTrue(verifies);
         }
     }
@@ -287,7 +174,7 @@ public class VerifierTest extends Assert {
     @Test(expected = MissingRequiredHeaderException.class)
     public void missingDefaultHeader() throws Exception {
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"\",signature=\"WbB9VXuVdRt1LKQ5mDuT+tiaChn8R7WhdAWAY1lhKZQ=\"";
-        final Signature signature = Signature.fromString(authorization, null);
+        final Signature signature = Signature.fromString(authorization);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Verifier verifier = new Verifier(key, signature);
@@ -299,7 +186,7 @@ public class VerifierTest extends Assert {
     @Test(expected = MissingRequiredHeaderException.class)
     public void missingExplicitHeader() throws Exception {
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"date accept\",signature=\"WbB9VXuVdRt1LKQ5mDuT+tiaChn8R7WhdAWAY1lhKZQ=\"";
-        final Signature signature = Signature.fromString(authorization, null);
+        final Signature signature = Signature.fromString(authorization);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Verifier verifier = new Verifier(key, signature);
@@ -312,7 +199,7 @@ public class VerifierTest extends Assert {
     @Test
     public void testVerify1() throws Exception {
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-        final Signature signature = Signature.fromString(authorization, null);
+        final Signature signature = Signature.fromString(authorization);
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
         final Verifier verifier = new Verifier(key, signature);
@@ -354,7 +241,7 @@ public class VerifierTest extends Assert {
             headers.put("Content-Length", "18");
 
             final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"(request-target) host date digest content-length\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-            final Signature signature = Signature.fromString(authorization, null);
+            final Signature signature = Signature.fromString(authorization);
 
             final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
             final Verifier verifier = new Verifier(key, signature);
@@ -379,16 +266,16 @@ public class VerifierTest extends Assert {
             headers.put("Content-Length", "18");
 
             final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
-            final Signature signature = Signature.fromString(authorization, null);
+            final Signature signature = Signature.fromString(authorization);
 
             final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
             final Verifier verifier = new Verifier(key, signature);
 
             final String string = verifier.createSigningString(method, uri, headers);
             assertEquals("content-length: 18\n" +
-                            "host: example.org\n" +
-                            "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
-                            "(request-target): get /foo/Bar"
+                    "host: example.org\n" +
+                    "date: Tue, 07 Jun 2014 20:51:35 GMT\n" +
+                    "(request-target): get /foo/Bar"
                     , string);
         }
     }

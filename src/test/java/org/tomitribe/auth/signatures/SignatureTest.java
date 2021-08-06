@@ -263,6 +263,24 @@ public class SignatureTest {
                 "content-length", join("\n", signature.getHeaders()));
     }
 
+    @Test
+    public void testFromStringNoPrefix() throws Exception {
+        final String authorization = "keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",\n" +
+                "   headers=\"(request-target) host date digest content-length\",\n" +
+                "   signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"";
+
+        final Signature signature = Signature.fromString(authorization, null);
+
+        assertEquals("hmac-key-1", signature.getKeyId());
+        assertEquals("hmac-sha256", signature.getAlgorithm().toString());
+        assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signature.getSignature());
+        assertEquals("(request-target)\n" +
+                "host\n" +
+                "date\n" +
+                "digest\n" +
+                "content-length", join("\n", signature.getHeaders()));
+    }
+
     /**
      * Same as testFromString, but the algorithm is set to 'hs2019',
      * @throws Exception
@@ -535,6 +553,32 @@ public class SignatureTest {
                 "signature=\"Base64(HMAC-SHA256(signing string))\"";
 
         assertEquals(authorization, signature.toString());
+    }
+
+    @Test
+    public void testToStringWithPrefix() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+
+        final String authorization = "keyId=\"hmac-key-1\"," +
+                "algorithm=\"hmac-sha256\"," +
+                "headers=\"(request-target) host date digest content-length\"," +
+                "signature=\"Base64(HMAC-SHA256(signing string))\"";
+
+        assertEquals(authorization, signature.toString(null));
+    }
+
+    @Test
+    public void testToParamString() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HMAC_SHA256.getAlgorithmName(), "hmac-sha256", null, "Base64(HMAC-SHA256(signing string))", Arrays.asList("(request-target)", "host", "date", "digest", "content-length"));
+
+        final String authorization = "keyId=\"hmac-key-1\"," +
+                "algorithm=\"hmac-sha256\"," +
+                "headers=\"(request-target) host date digest content-length\"," +
+                "signature=\"Base64(HMAC-SHA256(signing string))\"";
+
+        assertEquals(authorization, signature.toParamString());
     }
 
 
