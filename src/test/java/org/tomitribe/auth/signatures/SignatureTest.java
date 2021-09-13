@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -121,11 +122,27 @@ public class SignatureTest {
 
     /**
      * Invalid (created) field, the value must be an integer, decimal values are not supported.
+     * Locale EN
      */
     @Test(expected = InvalidCreatedFieldException.class)
-    public void signatureCreatedFieldDecimalValue() throws Exception {
+    public void signatureCreatedFieldDecimalValueEN() throws Exception {
+        Locale.setDefault(Locale.ENGLISH);
         final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=1591763110.123," +
+                "headers=\"(created)\"" +
+                ",signature=\"Base64(HMAC-SHA256(signing string))\"";
+        Signature.fromString(authorization, null);
+    }
+
+    /**
+     * Invalid (created) field, the value must be an integer, decimal values are not supported.
+     * Locale FR
+     */
+    @Test(expected = InvalidCreatedFieldException.class)
+    public void signatureCreatedFieldDecimalValueFR() throws Exception {
+        Locale.setDefault(Locale.FRENCH);
+        final String authorization = "Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
+                "created=1591763110,123," +
                 "headers=\"(created)\"" +
                 ",signature=\"Base64(HMAC-SHA256(signing string))\"";
         Signature.fromString(authorization, null);
