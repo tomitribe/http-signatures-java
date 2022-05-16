@@ -109,7 +109,7 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
+            assertToString("Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\"," +
                     "headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"", signed);
         }
 
@@ -125,7 +125,7 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
+            assertToString("Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\"," +
                     "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed);
         }
 
@@ -141,7 +141,7 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=1628283435,algorithm=\"hs2019\"," +
+            assertToString("Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\"," +
                     "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed);
         }
 
@@ -157,7 +157,7 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
+            assertToString("Signature keyId=\"hmac-key-1\",algorithm=\"hs2019\"," +
                     "headers=\"content-length host date (request-target)\",signature=\"IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=\"", signed);
         }
     }

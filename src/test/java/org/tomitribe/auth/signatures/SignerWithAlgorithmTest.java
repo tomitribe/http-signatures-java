@@ -144,6 +144,113 @@ public class SignerWithAlgorithmTest extends Assert {
         }
     }
 
+    /**
+     * It is an intentional part of the design that the same Signer instance
+     * can be reused on several HTTP Messages in a multi-threaded fashion
+     * <p/>
+     * Reuse is tested here
+     * <p/>
+     */
+    @Test
+    public void testSignAtCreatedAndExpires() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)");
+
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+
+        final long created = 1631187000;
+        final long expires = 1631191300786L;
+
+        final String method = "GET";
+        final String uri = "/foo/Bar";
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+        final Signature signed = signer.sign(method, uri, headers, created, expires);
+        assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signed.getSignature());
+        assertEquals("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"", signed.toString());
+    }
+
+    @Test
+    public void testSignAtCreatedAndExpiresWithCreatedHeader() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)", "(created)");
+
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+
+        final long created = 1631187000;
+        final long expires = 1631191300786L;
+
+        final String method = "GET";
+        final String uri = "/foo/Bar";
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+        final Signature signed = signer.sign(method, uri, headers, created, expires);
+        assertEquals("im9YJlYjVPwq0TIndq3mEUC6kH6LaMAZWG4hZ7hVYi4=", signed.getSignature());
+        assertEquals("Signature keyId=\"hmac-key-1\",created=1631187,algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target) (created)\",signature=\"im9YJlYjVPwq0TIndq3mEUC6kH6LaMAZWG4hZ7hVYi4=\"", signed.toString());
+    }
+
+    @Test
+    public void testSignAtCreatedAndExpiresWithExpiresHeader() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)", "(expires)");
+
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+
+        final long created = 1631187000;
+        final long expires = 1631191300786L;
+
+        final String method = "GET";
+        final String uri = "/foo/Bar";
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+        final Signature signed = signer.sign(method, uri, headers, created, expires);
+        assertEquals("wqu4SMw/Iqv8KMxqX18mWs6Zs94XFNXOU0Uh5tq23Zw=", signed.getSignature());
+        assertEquals("Signature keyId=\"hmac-key-1\",expires=1631191300,786,algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target) (expires)\",signature=\"wqu4SMw/Iqv8KMxqX18mWs6Zs94XFNXOU0Uh5tq23Zw=\"", signed.toString());
+    }
+
+    @Test
+    public void testSignAtCreatedAndExpiresWithCreatedAndExpiresHeader() throws Exception {
+
+        final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null, "content-length", "host", "date", "(request-target)", "(created)", "(expires)");
+
+        final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
+        final Signer signer = new Signer(key, signature);
+
+        final long created = 1631187000;
+        final long expires = 1631191300786L;
+
+        final String method = "GET";
+        final String uri = "/foo/Bar";
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Host", "example.org");
+        headers.put("Date", "Tue, 07 Jun 2014 20:51:35 GMT");
+        headers.put("Content-Type", "application/json");
+        headers.put("Digest", "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=");
+        headers.put("Accept", "*/*");
+        headers.put("Content-Length", "18");
+        final Signature signed = signer.sign(method, uri, headers, created, expires);
+        assertEquals("OVtTtYTcmKgjl7X5kSLT00pbbaOKluD6Gk1pluNBnsU=", signed.getSignature());
+        assertEquals("Signature keyId=\"hmac-key-1\",created=1631187,expires=1631191300,786,algorithm=\"hmac-sha256\",headers=\"content-length host date (request-target) (created) (expires)\",signature=\"OVtTtYTcmKgjl7X5kSLT00pbbaOKluD6Gk1pluNBnsU=\"", signed.toString());
+    }
+
     @Test
     public void defaultHeaderList() throws Exception {
         final Signature signature = new Signature("hmac-key-1", "hmac-sha256", null);

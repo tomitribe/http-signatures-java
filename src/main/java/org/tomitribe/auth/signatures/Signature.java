@@ -132,9 +132,10 @@ public class Signature {
      * Regular expression pattern for fields present in the Authorization field.
      * Fields value may be double-quoted strings, e.g. algorithm="hs2019"
      * Some fields may be numerical values without double-quotes, e.g. created=123456
+     * Fields that are numerical values with digits are formatted regarding the current Locale. The char used can be a "." (dot) or a "," coma.
      */
     private static final Pattern RFC_2617_PARAM = Pattern
-            .compile("(?<key>\\w+)=((\"(?<stringValue>[^\"]*)\")|(?<numberValue>\\d+\\.?\\d*))");
+            .compile("(?<key>\\w+)=((\"(?<stringValue>[^\"]*)\")|(?<numberValue>\\d+[.,]?\\d*))");
 
     /**
      * The maximum time skew between the client and the server.
@@ -561,24 +562,22 @@ public class Signature {
     }
     
     public String toString(final String prefix) {
+        final Object alg;
         if (SigningAlgorithm.HS2019.equals(signingAlgorithm)) {
             // When the signing algorithm is set to 'hs2019', the value of the algorithm
             // field must be set to 'hs2019'. The specific crypto algorithm is not
             // serialized in the 'Authorization' header, the server must derive the value
             // from the keyId.
-            return (prefix != null ? prefix + " " : "") +
-                    "keyId=\"" + keyId + '\"' +
-                    (signatureCreatedTime != null ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
-                    (signatureExpiresTime != null ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
-                    ",algorithm=\"" + signingAlgorithm + '\"' +
-                    ",headers=\"" + Join.join(" ", headers) + '\"' +
-                    ",signature=\"" + signature + '\"';
+            alg = signingAlgorithm;
         } else {
-            return (prefix != null ? prefix + " " : "") +
-                    "keyId=\"" + keyId + '\"' +
-                    ",algorithm=\"" + algorithm + '\"' +
-                    ",headers=\"" + Join.join(" ", headers) + '\"' +
-                    ",signature=\"" + signature + '\"';
+            alg = algorithm;
         }
+        return  (prefix != null ? prefix + " " : "") +
+                "keyId=\"" + keyId + '\"' +
+                (signatureCreatedTime != null && headers.contains("(created)") ? String.format(",created=%d", signatureCreatedTime / 1000L) : "") +
+                (signatureExpiresTime != null && headers.contains("(expires)") ? String.format(",expires=%.3f", signatureExpiresTime / 1000.0) : "") +
+                ",algorithm=\"" + alg + '\"' +
+                ",headers=\"" + Join.join(" ", headers) + '\"' +
+                ",signature=\"" + signature + '\"';
     }
 }

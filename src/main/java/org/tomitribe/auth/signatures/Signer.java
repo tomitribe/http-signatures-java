@@ -85,22 +85,21 @@ public class Signer {
     }
 
     /**
-     * Create and return a HTTP signature object.
+     * Create and return a HTTP signature object configured with 'created' and 'expires' values.
+     * Useful if you want to recreate a Signature from configuration to validate another one.
      *
      * @param method The HTTP method.
      * @param uri The path and query of the request target of the message.
      *            The value must already be encoded exactly as it will be sent in the
      *            request line of the HTTP message. No URL encoding is performed by this method.
      * @param headers The HTTP headers.
+     * @param created the created timestamp
+     * @param expires the expires timestamp
      *
      * @return a Signature object containing the signed message.
      */
-    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        final Long created = System.currentTimeMillis();
-        Long expires = signature.getSignatureMaxValidityMilliseconds();
-        if (expires != null) {
-            expires += created;
-        }
+    public Signature sign(final String method, final String uri, final Map<String, String> headers, Long created, Long expires) throws IOException {
+
         final String signingString = createSigningString(method, uri, headers, created, expires);
 
         final byte[] binarySignature = sign.sign(signingString.getBytes("UTF-8"));
@@ -112,6 +111,26 @@ public class Signer {
         return new Signature(signature.getKeyId(), signature.getSigningAlgorithm(),
                 signature.getAlgorithm(), signature.getParameterSpec(),
                 signedAndEncodedString, signature.getHeaders(), null, created, expires);
+    }
+
+    /**
+     * Create and return a HTTP signature object.
+     *
+     * @param method The HTTP method.
+     * @param uri The path and query of the request target of the message.
+     *            The value must already be encoded exactly as it will be sent in the
+     *            request line of the HTTP message. No URL encoding is performed by this method.
+     * @param headers The HTTP headers.
+     *
+     * @return a Signature object containing the signed message.
+     */
+    public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
+        final long created = System.currentTimeMillis();
+        Long expires = signature.getSignatureMaxValidityMilliseconds();
+        if (expires != null) {
+            expires += created;
+        }
+        return sign(method, uri, headers, created, expires);
     }
 
     /**
