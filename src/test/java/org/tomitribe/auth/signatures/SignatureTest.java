@@ -46,7 +46,7 @@ public class SignatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullAlgorithm() {
-        new Signature("somekey", SigningAlgorithm.HS2019.getAlgorithmName(), (String) null, null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
+        new Signature("somekey", SigningAlgorithm.HS2019.getAlgorithmName(), null, null, "yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", Arrays.asList("date", "accept"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -359,7 +359,7 @@ public class SignatureTest {
     @Test
     public void signatureCreatedAndExpiresFields() throws Exception {
         final long created = (System.currentTimeMillis() / 1000L) * 1000L;
-        final long expires = System.currentTimeMillis() + 3600L * 1000L;
+        final long expires = created + 3600L * 1000L;
         final String authorization = String.format("Signature keyId=\"hmac-key-1\",algorithm=\"hmac-sha256\"," +
                 "created=%d,expires=%f," +
                 "headers=\"(request-target) (created) (expires) one two\"" +
