@@ -22,6 +22,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
+import java.time.Clock;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -45,16 +46,26 @@ public class Signer {
     private final Signature signature;
     private final Algorithm algorithm;
     private final Provider provider;
+    private final Clock clock;
 
     public Signer(final Key key, final Signature signature) {
-        this(key, signature, null);
+        this(key, signature, null, Clock.systemUTC());
     }
 
     public Signer(final Key key, final Signature signature, final Provider provider) {
+        this(key, signature, provider, Clock.systemUTC());
+    }
+
+    public Signer(final Key key, final Signature signature, final Clock clock) {
+        this(key, signature, null, clock);
+    }
+
+    public Signer(final Key key, final Signature signature, final Provider provider, Clock clock) {
         requireNonNull(key, "Key cannot be null");
         this.signature = requireNonNull(signature, "Signature cannot be null");
         this.algorithm = signature.getAlgorithm();
         this.provider = provider;
+        this.clock = requireNonNull(clock, "clock cannot be null");
 
         if (java.security.Signature.class.equals(algorithm.getType())) {
 
@@ -96,7 +107,7 @@ public class Signer {
      * @return a Signature object containing the signed message.
      */
     public Signature sign(final String method, final String uri, final Map<String, String> headers) throws IOException {
-        final Long created = System.currentTimeMillis();
+        final Long created = clock.millis();
         Long expires = signature.getSignatureMaxValidityMilliseconds();
         if (expires != null) {
             expires += created;
