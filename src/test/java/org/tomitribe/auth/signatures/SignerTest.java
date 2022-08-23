@@ -24,6 +24,9 @@ import java.io.ByteArrayInputStream;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.Provider;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +98,7 @@ public class SignerTest extends Assert {
         final Signature signature = new Signature("hmac-key-1", SigningAlgorithm.HS2019.getAlgorithmName(), "hmac-sha256", null, null, Arrays.asList("content-length", "host", "date", "(request-target)"));
 
         final Key key = new SecretKeySpec("don't tell".getBytes(), "HmacSHA256");
-        final Signer signer = new Signer(key, signature);
+        final Signer signer = new Signer(key, signature, Clock.fixed(Instant.ofEpochMilli(123456789l), ZoneId.systemDefault()));
 
         {
             final String method = "GET";
@@ -109,8 +112,8 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
-                    "headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"", signed);
+            assertEquals("Signature keyId=\"hmac-key-1\",created=123456,algorithm=\"hs2019\"," +
+                        "headers=\"content-length host date (request-target)\",signature=\"yT/NrPI9mKB5R7FTLRyFWvB+QLQOEAvbGmauC0tI+Jg=\"", signed.toString());
         }
 
         { // method changed.  should get a different signature
@@ -125,8 +128,8 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
-                    "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed);
+            assertEquals("Signature keyId=\"hmac-key-1\",created=123456,algorithm=\"hs2019\"," +
+                        "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed.toString());
         }
 
         { // only Digest changed.  not part of the signature, should have no effect
@@ -141,8 +144,8 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=1628283435,algorithm=\"hs2019\"," +
-                    "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed);
+            assertEquals("Signature keyId=\"hmac-key-1\",created=123456,algorithm=\"hs2019\"," +
+                        "headers=\"content-length host date (request-target)\",signature=\"DPIsA/PWeYjySmfjw2P2SLJXZj1szDOei/Hh8nTcaPo=\"", signed.toString());
         }
 
         { // uri changed.  should get a different signature
@@ -157,17 +160,9 @@ public class SignerTest extends Assert {
             headers.put("Content-Length", "18");
             final Signature signed = signer.sign(method, uri, headers);
             assertEquals("IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=", signed.getSignature());
-            assertToString("Signature keyId=\"hmac-key-1\",created=9999,algorithm=\"hs2019\"," +
-                    "headers=\"content-length host date (request-target)\",signature=\"IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=\"", signed);
+            assertEquals("Signature keyId=\"hmac-key-1\",created=123456,algorithm=\"hs2019\"," +
+                        "headers=\"content-length host date (request-target)\",signature=\"IWTDxmOoEJI67YxY3eDIRzxrsAtlYYCuGZxKlkUSYdA=\"", signed.toString());
         }
-    }
-
-    private void assertToString(final String expected, final Signature signed) {
-        assertEquals(normalize(expected), normalize(signed.toString()));
-    }
-
-    private static String normalize(final String s) {
-        return s.replaceAll("(created)=[0-9]+", "$1=9999");
     }
 
     @Test
